@@ -66,6 +66,7 @@ class IntersectionIterable:
         self.current_point_y = self.f(a)
         self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
 
+        self.found_last_point = False
         self.cont = 1
 
     def f(self, x: float) -> float:
@@ -95,12 +96,12 @@ class IntersectionIterable:
     def bisection(self, p1: float, p2: float) -> float:
         while True:
 
-            print(f"bisection p1 {p1} p2 {p2}")
+            #print(f"bisection p1 {p1} p2 {p2}")
             middle_point = (p1 + p2) / 2
             f_middle_point = self.f(middle_point)
 
             if(abs(f_middle_point) < self.maxerr):
-                print(f"bisection return {middle_point},{f_middle_point}")
+             #   print(f"bisection return {middle_point},{f_middle_point}")
                 return middle_point
 
             if(self.f(p1) * f_middle_point < 0):
@@ -118,13 +119,13 @@ class IntersectionIterable:
         self.cont = 1
         learning_rate = self.init_learning_rate
 
+        if(self.found_last_point):
+            raise StopIteration
+
         if(self.current_point_gradient < 0):
             self.cont = -1
 
         while True:
-
-            #if(self.current_point_x > self.b):
-             #   raise StopIteration
 
             if(abs(self.current_point_y) < self.maxerr):
                 return self.set_current_point_ret_given_point(self.current_point_x)
@@ -132,10 +133,16 @@ class IntersectionIterable:
             next_point_x = self.current_point_x + self.cont * learning_rate * self.current_point_gradient
             next_point_y = self.f(next_point_x)
 
+            if(next_point_x == self.current_point_x):
+                raise Exception
             if(next_point_x > self.b):
+                if(self.current_point_y * self.f(self.b) < 0):
+                     ret_point = self.bisection(self.current_point_x, self.b)
+                     self.found_last_point = True
+                     return ret_point
                 raise StopIteration
 
-            #print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y} cont {self.cont}")
+            #print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y} cont {self.cont} lr {learning_rate}")
             #print(f"next_p_x {next_point_x} next_p_y {next_point_y}")
 
             if(self.current_point_y * next_point_y < 0):
@@ -143,20 +150,21 @@ class IntersectionIterable:
 
             next_point_gradient = self.get_gradient(next_point_x, next_point_y)
             #print(f"current_point_gradient {self.current_point_gradient} next_point_gradient {next_point_gradient}")
-            if(self.current_point_gradient * next_point_gradient <= 0):
-                if(abs(self.current_point_gradient * next_point_gradient) < 0.001):
-                    if(self.current_point_gradient < 0):
-                        self.cont = -1
-                    else:
-                        self.cont = 1
 
-             #       print(f"cont current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
-                    self.current_point_x = self.current_point_x + 0.1
-                    self.current_point_y = self.f(self.current_point_x)
-                    self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
-              #      print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
-                    continue
+            if(abs(self.current_point_gradient * next_point_gradient) < 0.001):
+                if(self.current_point_gradient < 0):
+                    self.cont = -1
+                else:
+                    self.cont = 1
 
+             #   print(f"cont current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
+                self.current_point_x = self.current_point_x + 0.1
+                self.current_point_y = self.f(self.current_point_x)
+                self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
+              #   print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
+                continue
+
+            if(self.current_point_gradient * next_point_gradient < 0):
                 learning_rate = learning_rate / 2
             
             self.current_point_x = next_point_x
@@ -193,12 +201,18 @@ class TestAssignment2(unittest.TestCase):
             print(f"{index} {x}")
             index = index + 1
             self.assertGreaterEqual(0.001, abs(f1(x) - f2(x)))
+        print(index)
 
     def test_poly(self):
 
         ass2 = Assignment2()
 
         f1, f2 = randomIntersectingPolynomials(10)
+    
+        """p_x = np.arange(-1, 1, 0.1)
+        p_y = f1(p_x) - f2(p_x)
+        plt.plot(p_x, p_y)
+        plt.show()"""
 
         X = ass2.intersections(f1, f2, -1, 1, maxerr=0.001)
         print("p")
@@ -207,13 +221,7 @@ class TestAssignment2(unittest.TestCase):
             print(f"{index} {x}")
             index = index + 1
             self.assertGreaterEqual(0.001, abs(f1(x) - f2(x)))
-
-    
-        p_x = np.arange(-1, 1, 0.1)
-        p_y = f1(p_x) - f2(p_x)
-        plt.plot(p_x, p_y)
-        plt.show()
-
+        print(index)
 
 if __name__ == "__main__":
     unittest.main()
