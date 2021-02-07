@@ -58,10 +58,35 @@ class Assignment3:
             The definite integral of f between a and b
         """
 
-        # replace this line with your solution
-        result = np.float32(1.0)
+        def composite_simpson(a: np.float32, b: np.float32) -> np.float32:
+            h = (b - a) / np.float32(n)
+            sum1_array = [a]
+            sum2_array = []
+            sum3_array = [b]
 
-        return result
+            x = a + h
+            for i in range(1, n):
+                point = np.float32(f(x))
+
+                if(i % 2 == 0):
+                    sum1_array.append(point)
+                    sum3_array.append(point)
+                else:
+                    sum2_array.append(point)
+
+                x = x + h
+
+            sum1_array.sort()
+            sum2_array.sort()
+            sum3_array.sort()
+
+            sum1 = np.sum(sum1_array, dtype=np.float32)
+            sum2 = np.float32(4.0) * np.sum(sum2_array, dtype=np.float32)
+            sum3 = np.sum(sum3_array, dtype=np.float32)
+
+            return (h * (sum1 + sum3 + sum2)) / np.float32(3.0)
+
+        return composite_simpson(np.float32(a), np.float32(b))
 
     def areabetween(self, f1: callable, f2: callable) -> np.float32:
         """
@@ -101,6 +126,7 @@ import unittest
 from sampleFunctions import *
 from tqdm import tqdm
 
+import scipy.integrate as integrate
 
 class TestAssignment3(unittest.TestCase):
 
@@ -108,8 +134,10 @@ class TestAssignment3(unittest.TestCase):
         ass3 = Assignment3()
         f1 = np.poly1d([-1, 0, 1])
         r = ass3.integrate(f1, -1, 1, 10)
-
-        self.assertEquals(r.dtype, np.float32)
+        points = np.arange(-1, 1, (2/10))
+        print(integrate.simps(f1(points), points))
+        print(r)
+        self.assertEqual(r.dtype, np.float32)
 
     def test_integrate_hard_case(self):
         ass3 = Assignment3()

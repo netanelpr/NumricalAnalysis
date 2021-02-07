@@ -217,7 +217,7 @@ class TestAssignment2(unittest.TestCase):
         f1 = lambda x: np.sqrt(f_poly(x))
         f2 = lambda x: 0
 
-        self.tfunc("sqrt", f1, f2, -100, 100, 0.001, 1)
+        self.tfunc("sqrt", f1, f2, -100, 100, 0.001, 1 )
 
     def tfunc(self, func_name: str, f1: callable, f2: callable, s: float, to: float, maxerr: float, number_of_points=-1, draw=False):
 
