@@ -20,6 +20,7 @@ import numpy as np
 import time
 import random
 
+from assignment2 import Assignment2
 
 class Assignment3:
     def __init__(self):
@@ -113,6 +114,10 @@ class Assignment3:
 
         """
 
+        assignment2 = Assignment2()
+        area = []
+        intersections = assignment2.intersections(f1, f2,)
+
         # replace this line with your solution
         result = np.float32(1.0)
 
@@ -127,25 +132,38 @@ from sampleFunctions import *
 from tqdm import tqdm
 
 import scipy.integrate as integrate
+import matplotlib.pyplot as plt
 
 class TestAssignment3(unittest.TestCase):
 
     def test_integrate_float32(self):
-        ass3 = Assignment3()
-        f1 = np.poly1d([-1, 0, 1])
-        r = ass3.integrate(f1, -1, 1, 10)
-        points = np.arange(-1, 1, (2/10))
-        print(integrate.simps(f1(points), points))
-        print(r)
-        self.assertEqual(r.dtype, np.float32)
+        f1 = np.poly1d([1, 0, -1])
+
+        self.tfunc("poly", f1, -1, 1, 10, 0.001)
 
     def test_integrate_hard_case(self):
         ass3 = Assignment3()
         f1 = strong_oscilations()
-        r = ass3.integrate(f1, 0.05, 10, 20)
+        r = ass3.integrate(f1, 0.05, 10, 100)
 
         self.assertGreaterEqual(0.001, (r - 2.0998 * 10 ** 116) / 2.0998 * 10 ** 116)
 
+    def tfunc(self, func_name: str, f1: callable, s: float, to: float, n: int, maxerr: float, draw=False):
+
+        if(draw):
+            p_x = np.arange(s * 1.1, to * 1.1, 0.1)
+            p_y = f1(p_x) - f2(p_x)
+            plt.plot(p_x, p_y)
+            plt.show()
+       
+        ass3 = Assignment3()
+        r = ass3.integrate(f1, s, to, n)
+        points = np.arange(s, to, ((to-s)/n))
+        #print(integrate.simps(f1(points), points))
+        expect_aera = integrate.quad(lambda x: f1(x), s, to)
+        self.assertEqual(r.dtype, np.float32)
+        self.assertGreaterEqual(maxerr, abs(r - expect_aera[0]), func_name)
+    
 
 if __name__ == "__main__":
     unittest.main()

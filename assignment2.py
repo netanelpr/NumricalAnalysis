@@ -46,7 +46,11 @@ class Assignment2:
         """
 
         iterator = IntersectionIterable(f1, f2, a, b, maxerr)
-        return iterator
+        intersetion_list = []
+        for intersetion in iterator:
+           intersetion_list.append(intersetion)
+
+        return intersetion_list
 
 class IntersectionIterable:
 
@@ -60,7 +64,7 @@ class IntersectionIterable:
 
         self.init_learning_rate = 0.01
         self.slope_step = 0.01
-        self.jmp_step = 0.1
+        self.jmp_step = 0.01
 
         self.current_point_x = a
         self.current_point_y = self.f(a)
@@ -73,7 +77,9 @@ class IntersectionIterable:
         return self.f1(x) - self.f2(x)
 
     def get_gradient(self, x: float, y: float) -> float:
-        return (self.f(x+self.slope_step) - y) / self.slope_step
+        gradient = (self.f(x+self.slope_step) - y) / self.slope_step
+        if(np.isnan(gradient)): gradient = 0.01
+        return gradient
 
     def set_point_for_next_iter(self, current_root_x: float) -> float:
 
@@ -86,7 +92,10 @@ class IntersectionIterable:
         self.current_point_x = current_root_x
         self.current_point_y = self.f(self.current_point_x)
         while(abs(self.current_point_y) < self.maxerr):
-            #print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
+            #print(f"current_p_x {self.current_point_x} current_p_y {self.current_point_y}")
+
+            if(self.current_point_x > self.b):
+                break
             self.current_point_x = self.current_point_x + self.jmp_step
             self.current_point_y = self.f(self.current_point_x)
         
@@ -127,9 +136,11 @@ class IntersectionIterable:
 
         while True:
 
-            if(abs(self.current_point_y) < self.maxerr):
-                return self.set_point_for_next_iter(self.current_point_x)
-
+            """if(np.isneginf(self.current_point_y) or np.isinf(self.current_point_y)):
+                self.current_point_x = self.current_point_x + self.jmp_step
+                self.current_point_y = self.f(self.current_point_x)
+                self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)"""
+           
             next_point_x = self.current_point_x + self.cont * learning_rate * self.current_point_gradient
             next_point_y = self.f(next_point_x)
 
@@ -139,6 +150,9 @@ class IntersectionIterable:
                      self.found_last_point = True
                      return ret_point
                 raise StopIteration
+
+            if(abs(self.current_point_y) < self.maxerr):
+                return self.set_point_for_next_iter(self.current_point_x)
 
             #print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y} cont {self.cont} lr {learning_rate}")
             #print(f"next_p_x {next_point_x} next_p_y {next_point_y}")
@@ -155,7 +169,7 @@ class IntersectionIterable:
                 else:
                     self.cont = 1
 
-                self.current_point_x = self.current_point_x + 0.1
+                self.current_point_x = self.current_point_x + self.jmp_step
                 self.current_point_y = self.f(self.current_point_x)
                 self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
                 continue
@@ -176,6 +190,7 @@ from sampleFunctions import *
 from tqdm import tqdm
 
 import matplotlib.pyplot as plt
+import tfunctions
 
 class TestAssignment2(unittest.TestCase):
 
@@ -206,10 +221,73 @@ class TestAssignment2(unittest.TestCase):
 
     def test_const(self):
 
-        f1 = lambda x: 5
         f2 = lambda x: 0
 
-        self.tfunc("const", f1, f2, -10, 10, 0.001)
+        self.tfunc("t1", tfunctions.f1, f2, -10, 10, 0.001, 0)
+
+    def test_2(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t2", tfunctions.f2, f2, -5, 5, 0.001, 0)
+
+    def test_3(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t3", tfunctions.f3, f2, -4.1, 4.1, 0.001, 11)
+
+    def test_4(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t4", tfunctions.f4, f2, -1, 1, 0.001, 0)
+
+
+    def test_5(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t5", tfunctions.f5, f2, -100, 100, 0.001, 1)
+
+    def test_6(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t6", tfunctions.f6, f2, -4, 4, 0.001, 2)
+
+
+    def test_7(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t7", tfunctions.f7, f2, 0.1, 0.999, 0.001, 0)
+        self.tfunc("t7", tfunctions.f7, f2, 1.0001, 10, 0.001, 0)
+
+    def test_8(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t8", tfunctions.f8, f2, -4, 4, 0.001, 0)
+
+    def test_9(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t9", tfunctions.f9, f2, 2.1, 5, 0.001, 1)
+
+    def test_10(self):
+
+        f2 = lambda x: 0
+
+        self.tfunc("t10", tfunctions.f10, f2, 0.001, 600, 0.001, 3)
+
+    def test_11(self):
+
+        f2 = lambda x: 0
+
+        #self.tfunc("t11", tfunctions.f11, f2, -1, -0.001, 0.001, 2)
+        self.tfunc("t11", tfunctions.f11, f2, 0.01, 1, 0.001, 1)
 
     def test_sqrt(self):
 
@@ -217,7 +295,15 @@ class TestAssignment2(unittest.TestCase):
         f1 = lambda x: np.sqrt(f_poly(x))
         f2 = lambda x: 0
 
-        self.tfunc("sqrt", f1, f2, -100, 100, 0.001, 1 )
+        self.tfunc("sqrt", f1, f2, -100, 100, 0.001, 1)
+
+    def test_12(self):
+
+        function = np.poly1d([1, -6, 8, 0])
+        
+        f2 = lambda x: 0
+
+        self.tfunc("t10", lambda x: function(x) * np.sin(x), f2, -4, 5, 0.001, 5)
 
     def tfunc(self, func_name: str, f1: callable, f2: callable, s: float, to: float, maxerr: float, number_of_points=-1, draw=False):
 
