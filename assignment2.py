@@ -128,13 +128,11 @@ class IntersectionIterable:
         while True:
 
             if(abs(self.current_point_y) < self.maxerr):
-                return self.set_current_point_ret_given_point(self.current_point_x)
+                return self.set_point_for_next_iter(self.current_point_x)
 
             next_point_x = self.current_point_x + self.cont * learning_rate * self.current_point_gradient
             next_point_y = self.f(next_point_x)
 
-            if(next_point_x == self.current_point_x):
-                raise Exception
             if(next_point_x > self.b):
                 if(self.current_point_y * self.f(self.b) < 0):
                      ret_point = self.bisection(self.current_point_x, self.b)
@@ -157,11 +155,9 @@ class IntersectionIterable:
                 else:
                     self.cont = 1
 
-             #   print(f"cont current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
                 self.current_point_x = self.current_point_x + 0.1
                 self.current_point_y = self.f(self.current_point_x)
                 self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
-              #   print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
                 continue
 
             if(self.current_point_gradient * next_point_gradient < 0):
@@ -185,43 +181,64 @@ class TestAssignment2(unittest.TestCase):
 
     def test_sqr(self):
 
-        ass2 = Assignment2()
-
-        f1 = np.poly1d([-1, 0, 1])
-        f2 = np.poly1d([1, 0, -1])
-
-        """p_x = np.arange(-1.5, 1.5, 0.1)
-        p_y = f1(p_x) - f2(p_x)
-        plt.plot(p_x, p_y)
-        plt.show()"""
-        print("sqr")
-        X = ass2.intersections(f1, f2, -1.5, 1.5, maxerr=0.001)
-        index = 1 
-        for x in X:
-            print(f"{index} {x}")
-            index = index + 1
-            self.assertGreaterEqual(0.001, abs(f1(x) - f2(x)))
-        print(index)
+        f1 = np.poly1d([1, 0, 0])
+        f2 = np.poly1d([2, 0, 0])
+        self.tfunc("sqr",f1, f2, -1, 1, 0.001)
 
     def test_poly(self):
-
-        ass2 = Assignment2()
-
-        f1, f2 = randomIntersectingPolynomials(10)
     
-        """p_x = np.arange(-1, 1, 0.1)
-        p_y = f1(p_x) - f2(p_x)
-        plt.plot(p_x, p_y)
-        plt.show()"""
+        f1, f2 = randomIntersectingPolynomials(10)
+        self.tfunc("poly", f1, f2, -1, 1, 0.001)
+    
+    def test_sin(self):
 
-        X = ass2.intersections(f1, f2, -1, 1, maxerr=0.001)
-        print("p")
+        f1 = lambda x: np.sin(x)
+        f2 = lambda x: 0
+
+        self.tfunc("sin", f1, f2, -10, 10, 0.001)
+
+    def test_exp(self):
+
+        f1 = lambda x: np.exp(x)
+        f2 = lambda x: 0
+
+        self.tfunc("exp", f1, f2, -10, 10, 0.001)
+
+    def test_const(self):
+
+        f1 = lambda x: 5
+        f2 = lambda x: 0
+
+        self.tfunc("const", f1, f2, -10, 10, 0.001)
+
+    def test_sqrt(self):
+
+        f_poly = np.poly1d([1, 0, 0])
+        f1 = lambda x: np.sqrt(f_poly(x))
+        f2 = lambda x: 0
+
+        self.tfunc("sqrt", f1, f2, -100, 100, 0.001, 1)
+
+    def tfunc(self, func_name: str, f1: callable, f2: callable, s: float, to: float, maxerr: float, number_of_points=-1, draw=False):
+
+        print(func_name)
+        if(draw):
+            p_x = np.arange(s * 1.1, to * 1.1, 0.1)
+            p_y = f1(p_x) - f2(p_x)
+            plt.plot(p_x, p_y)
+            plt.show()
+       
+        ass2 = Assignment2()
+        X = ass2.intersections(f1, f2, s, to, maxerr)
         index = 1 
         for x in X:
             print(f"{index} {x}")
             index = index + 1
-            self.assertGreaterEqual(0.001, abs(f1(x) - f2(x)))
-        print(index)
+            self.assertGreaterEqual(maxerr, abs(f1(x) - f2(x)))
+
+        if(number_of_points > -1):
+            self.assertEqual(number_of_points, index-1)
+        print(f"found {index-1} points")
 
 if __name__ == "__main__":
     unittest.main()
