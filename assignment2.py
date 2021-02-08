@@ -383,7 +383,16 @@ class TestAssignment2(unittest.TestCase):
         
         f2 = lambda x: 0
 
-        self.tfunc("t10", lambda x: function(x) * np.sin(x), f2, -4, 5, 0.001, 5)
+        self.tfunc("t12", lambda x: function(x) * np.sin(x), f2, -4, 5, 0.001, 5)
+ 
+    def test_13(self):
+
+        function = np.poly1d([1, -6, 8, 0])
+        
+        f1 = np.poly1d([1, -2, 0, 1])
+        f2 = lambda x: x
+
+        self.tfunc("t13", f1, f2, -10, 10, 0.001, 3)
 
     def tfunc(self, func_name: str, f1: callable, f2: callable, s: float, to: float, maxerr: float, number_of_points=-1, draw=False):
 

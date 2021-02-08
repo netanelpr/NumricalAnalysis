@@ -59,19 +59,22 @@ class Assignment3:
             The definite integral of f between a and b
         """
 
-        def composite_simpson(a: np.float32, b: np.float32) -> np.float32:
+        def compositce_simpson(a: np.float32, b: np.float32) -> np.float32:
             h = (b - a) / np.float32(n)
-            sum1_array = [a]
+            sum1_array = [f(a)]
             sum2_array = []
-            sum3_array = [b]
+            sum3_array = [f(b)]
 
             x = a + h
             for i in range(1, n):
+                #x = a + i * h 
+                #print(f"{x} {f(np.float32(x))}")
+                #print(f(x))
                 point = np.float32(f(x))
 
                 if(i % 2 == 0):
-                    sum1_array.append(point)
                     sum3_array.append(point)
+                    sum1_array.append(point)
                 else:
                     sum2_array.append(point)
 
@@ -80,14 +83,58 @@ class Assignment3:
             sum1_array.sort()
             sum2_array.sort()
             sum3_array.sort()
-
+            #print(sum1_array)
+            #print(sum2_array)
+            #print(sum3_array)
             sum1 = np.sum(sum1_array, dtype=np.float32)
             sum2 = np.float32(4.0) * np.sum(sum2_array, dtype=np.float32)
-            sum3 = np.sum(sum3_array, dtype=np.float32)
+            sum3 =  np.sum(sum3_array, dtype=np.float32)
 
-            return (h * (sum1 + sum3 + sum2)) / np.float32(3.0)
+            return (h * (sum1 + sum3 + sum2) / np.float32(3.0))
 
-        return composite_simpson(np.float32(a), np.float32(b))
+        def composite_trapezodial(a: np.float32, b: np.float32) -> np.float32:
+            h = (b - a) / np.float32(n)
+            sum1_array = [f(a), f(b)]
+            sum2_array = []
+
+            x = a + h
+            for i in range(1, n):
+                #x = a + i * h 
+                #print(f"{x} {f(np.float32(x))}")
+                #print(f(x))
+                point = np.float32(f(x))
+                sum2_array.append(point)
+                x = x + h
+
+            sum1_array.sort()
+            sum2_array.sort()
+            #print(sum1_array)
+            #print(sum2_array)
+            sum1 = np.sum(sum1_array, dtype=np.float32)
+            sum2 = np.float32(2.0) * np.sum(sum2_array, dtype=np.float32)
+
+            return (h * (sum1 + sum2) / np.float32(2.0))
+
+        def composite_midpoint(a: np.float32, b: np.float32) -> np.float32:
+            h = (b - a) / np.float32(n+2)
+            sum_array = []
+
+            x = a + h
+            for i in range(0, n):
+                #x = a + i * h 
+                print(f"{x} {f(np.float32(x))}")
+                #print(f(x))
+                point = np.float32(f(x))
+                sum_array.append(point)
+                x = x + h + h
+
+            sum_array.sort()
+            #print(sum_array)
+            sum1 = np.sum(sum_array, dtype=np.float32)
+
+            return np.float32(2.0) * h * sum1
+
+        return compositce_simpson(np.float32(a), np.float32(b))
 
     def areabetween(self, f1: callable, f2: callable): #-> np.float32:
         """
@@ -113,6 +160,9 @@ class Assignment3:
             The area between function and the X axis
 
         """
+
+        def f(x):
+            return f1(x) - f2(x)
 
         def calcSlope(f, p, delta):
             y_p = f(p)
@@ -153,7 +203,6 @@ class Assignment3:
             slopes = [0, 0, 0]
             next_at = at + jmp
             intersections = calcIntersections(f1, f2, at, next_at, 0.001)
-            #print(intersections)
             if(len(intersections) == 0):
                 for i in range(0, len(slopes_delta)):
                     delta = slopes_delta[i]
@@ -174,55 +223,27 @@ class Assignment3:
             left_intersections = find_intersections_left(f1, f2, calc_slopes, s, slopes_delta, jmp)
             right_intersections = find_intersections_right(f1, f2, calc_slopes, s, slopes_delta, jmp)
             return left_intersections + right_intersections
+    
+        def clac_aera():
+            calc_slopes = lambda a, b, c, d, e : assignment2.intersections(a, b, c, d, e)
+            intersections = get_intersections(0, calc_slopes)
 
-        """def get_intersection_points(self, calcIntersections):
-            start = -10
-            to = 10
-            range_jmp = 100
-            f = lambda x: f1(x) - f2(x)
-            intersections = calcIntersections(f1, f2, start, to, 0.001)
-            slopes_delta = [0.01, 100, 1000]
-            left_most_slopes = [0, 0, 0]
-            right_most_slopes = [0, 0, 0]
-            left_point_found = False
-            right_point_found = False
-            
-            while not (left_point_found and right_point_found):
-                new_intersections = calcIntersections(f1, f2, start, to, 0.001)
-                
-                if(intersections.size() < 2):
-                    start = start - range_jmp
-                    to = to + range_jmp
-                    continue
-                
-                left_most_inters = intersections[0]
-                right_most_inters = intersections[-1]
+            area = np.float32(0)
+            for i in range(0, len(intersections)-1):
+                new_area = abs(self.integrate(f, intersections[i], intersections[i+1], 100))
+                print(f"{intersections[i]} {intersections[i+1]} {new_area}")
+                area = area + new_area
 
-                for i in range(0, slopes_delta.size()):
-                    delta = slopes_delta[i]
-                    if(not left_point_found):
-                        left_most_slopes[i] = (calcSlope(f, left_most_inters, (delta * -1)) * -1)
-                    if(not right_point_found):
-                        right_most_slopes[i] = calcSlope(f, right_most_inters, delta)
-                 
-
-                if((not left_point_found) and is_more_intersections(left_most_slopes)):
-                    start = start - range_jmp
-                else:
-                    left_point_found = True
-                if((not right_point_found) and is_more_intersections(right_most_slopes)):
-                    start = start + range_jmp
-                else:
-                    right_point_found = True"""      
+            return area
 
         assignment2 = Assignment2()
         area = []
 
         #f1 = np.poly1d([-1, 0, 90])
-        f1 = np.poly1d([3, 7, 1, 4, 0, -4])
-        f2 = lambda x: 0
-        calc_slopes = lambda a, b, c, d, e : assignment2.intersections(a, b, c, d, e)
-        print(get_intersections(0, calc_slopes))
+        #f1 = np.poly1d([3, 7, 1, 4, 0, -4])
+        f1 = np.poly1d([1, -2, 0, 1])
+        f2 = lambda x: x
+        print(clac_aera())
 
         return 1
 
@@ -245,11 +266,13 @@ class TestAssignment3(unittest.TestCase):
         self.tfunc("poly", f1, -1, 1, 10, 0.001)
 
     def test_integrate_hard_case(self):
+
         ass3 = Assignment3()
         f1 = strong_oscilations()
-        r = ass3.integrate(f1, 0.05, 10, 100)
-
-        self.assertGreaterEqual(0.001, (r - 2.0998 * 10 ** 116) / 2.0998 * 10 ** 116)
+        r = ass3.integrate(f1, 0.09, 10, 20)
+        print(r)
+        true_result = -7.78662 * 10 ** 33
+        self.assertGreaterEqual(0.001, (r - true_result) / true_result)
 
     def tfunc(self, func_name: str, f1: callable, s: float, to: float, n: int, maxerr: float, draw=False):
 
@@ -269,9 +292,9 @@ class TestAssignment3(unittest.TestCase):
     
 
 if __name__ == "__main__":
-    #unittest.main()
-    a3 = Assignment3()
-    f1 = np.poly1d([-1, 0, 90])
-    f2 = lambda x: 0
-    a3.areabetween(f1, f2)
+    unittest.main()
+    """a3 = Assignment3()
+    f1 = np.poly1d([1, -2, 0, 1])
+    f2 = lambda x: x
+    a3.areabetween(f1, f2)"""
 
