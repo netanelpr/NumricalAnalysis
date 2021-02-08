@@ -89,7 +89,7 @@ class Assignment3:
 
         return composite_simpson(np.float32(a), np.float32(b))
 
-    def areabetween(self, f1: callable, f2: callable) -> np.float32:
+    def areabetween(self, f1: callable, f2: callable): #-> np.float32:
         """
         Finds the area enclosed between two functions. This method finds 
         all intersection points between the two functions to work correctly. 
@@ -114,14 +114,117 @@ class Assignment3:
 
         """
 
+        def calcSlope(f, p, delta):
+            y_p = f(p)
+            y_to = f(p + delta)
+            return (y_to - y_p) / delta
+
+        def is_more_intersections(slopes_array):
+            if(slopes_array[0] < 0):
+                for i in range(1, len(slopes_array)):
+                    if(slopes_array[i-1] < slopes_array[i]):
+                        return True
+            else:
+                for i in range(1, len(slopes_array)):
+                    if(slopes_array[i-1] > slopes_array[i]):
+                        return True
+            return False
+
+        def find_intersections_left(f1, f2, calcIntersections, at, slopes_delta, jmp):
+            slopes = [0, 0, 0]
+            next_at = at - jmp
+            intersections = calcIntersections(f1, f2, next_at, at, 0.001)
+            #print(intersections)
+            if(len(intersections) == 0):
+                for i in range(0, len(slopes_delta)):
+                    delta = slopes_delta[i]
+                    slopes[i] = calcSlope(lambda x: f1(x) - f2(x), at, (delta * -1)) * -1
+                if(is_more_intersections(slopes)):
+                    return find_intersections_left(f1, f2, calcIntersections, next_at, slopes_delta, jmp)
+                else:
+                    return []
+            else:
+                #print("next iter")
+                more_intersections = find_intersections_left(f1, f2, calcIntersections, next_at, slopes_delta, jmp)
+                #print(more_intersections)
+                return more_intersections + intersections
+
+        def find_intersections_right(f1, f2, calcIntersections, at, slopes_delta, jmp):
+            slopes = [0, 0, 0]
+            next_at = at + jmp
+            intersections = calcIntersections(f1, f2, at, next_at, 0.001)
+            #print(intersections)
+            if(len(intersections) == 0):
+                for i in range(0, len(slopes_delta)):
+                    delta = slopes_delta[i]
+                    slopes[i] = calcSlope(lambda x: f1(x) - f2(x), at, delta) 
+                if(is_more_intersections(slopes)):
+                    return find_intersections_right(f1, f2, calcIntersections, next_at, slopes_delta, jmp)
+                else:
+                    return []
+            else:
+                #print("next iter")
+                more_intersections = find_intersections_right(f1, f2, calcIntersections, next_at, slopes_delta, jmp)
+                #print(more_intersections)
+                return more_intersections + intersections
+
+        def get_intersections(s, calc_slopes):
+            slopes_delta = [0.01, 100, 1000]
+            jmp = 100
+            left_intersections = find_intersections_left(f1, f2, calc_slopes, s, slopes_delta, jmp)
+            right_intersections = find_intersections_right(f1, f2, calc_slopes, s, slopes_delta, jmp)
+            return left_intersections + right_intersections
+
+        """def get_intersection_points(self, calcIntersections):
+            start = -10
+            to = 10
+            range_jmp = 100
+            f = lambda x: f1(x) - f2(x)
+            intersections = calcIntersections(f1, f2, start, to, 0.001)
+            slopes_delta = [0.01, 100, 1000]
+            left_most_slopes = [0, 0, 0]
+            right_most_slopes = [0, 0, 0]
+            left_point_found = False
+            right_point_found = False
+            
+            while not (left_point_found and right_point_found):
+                new_intersections = calcIntersections(f1, f2, start, to, 0.001)
+                
+                if(intersections.size() < 2):
+                    start = start - range_jmp
+                    to = to + range_jmp
+                    continue
+                
+                left_most_inters = intersections[0]
+                right_most_inters = intersections[-1]
+
+                for i in range(0, slopes_delta.size()):
+                    delta = slopes_delta[i]
+                    if(not left_point_found):
+                        left_most_slopes[i] = (calcSlope(f, left_most_inters, (delta * -1)) * -1)
+                    if(not right_point_found):
+                        right_most_slopes[i] = calcSlope(f, right_most_inters, delta)
+                 
+
+                if((not left_point_found) and is_more_intersections(left_most_slopes)):
+                    start = start - range_jmp
+                else:
+                    left_point_found = True
+                if((not right_point_found) and is_more_intersections(right_most_slopes)):
+                    start = start + range_jmp
+                else:
+                    right_point_found = True"""      
+
         assignment2 = Assignment2()
         area = []
-        intersections = assignment2.intersections(f1, f2,)
 
-        # replace this line with your solution
-        result = np.float32(1.0)
+        #f1 = np.poly1d([-1, 0, 90])
+        f1 = np.poly1d([3, 7, 1, 4, 0, -4])
+        f2 = lambda x: 0
+        calc_slopes = lambda a, b, c, d, e : assignment2.intersections(a, b, c, d, e)
+        print(get_intersections(0, calc_slopes))
 
-        return result
+        return 1
 
 
 ##########################################################################
@@ -166,4 +269,9 @@ class TestAssignment3(unittest.TestCase):
     
 
 if __name__ == "__main__":
-    unittest.main()
+    #unittest.main()
+    a3 = Assignment3()
+    f1 = np.poly1d([-1, 0, 90])
+    f2 = lambda x: 0
+    a3.areabetween(f1, f2)
+
