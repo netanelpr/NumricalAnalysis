@@ -59,61 +59,7 @@ class Assignment1:
             #return [bezier_function(p0[0], p1[0], p2[0], t), bezier_function(p0[1], p1[1], p2[1], t)]
             return p0 * (1 - t) ** 2 + 2 * p1 * t * (1 - t) + p2 * t ** 2
 
-        def interpolated_func_data(points, control_points):
-            def bezier(x):
-                current_point_x = points[0][0]
-                #print(current_point_x)
-                index = 0
-                while(x > current_point_x and index < len(points)-1):
-                    #print(f"{x} {current_point_x}")
-                    index = index + 1
-                    current_point_x = points[index][0]
-
-                index = index - 1
-                #print(len(points))
-                #print(len(control_points))
-                #print(f"index {index}")
-                p0 = points[index]
-                p1 = control_points[index]
-                p2 = points[index+1]
-
-                t = (x - p0[0]) / (p2[0] - p0[0])
-                #print((x - p0[0]))
-                #print(p2[0] - p0[0])
-                #print(f"p0 {p0} p1 {p1} p2 {p2}")
-                #print(f"t {t} x {x}")
-                return cubic_bezier(p0[1], p1[1], p2[1], t)
-
-            def lagrange3(x):
-                def li_i_2(x, p1_x, p2_x, p3_x):
-                    return (x - p2_x) / (p1_x - p2_x) * (x - p3_x) / (p1_x - p3_x)
-
-                current_point_x = points[0][0]
-                #print(current_point_x)
-                index = 0
-                while(x > current_point_x and index < len(points)-2):
-                    #print(f"{x} {current_point_x}")
-                    index = index + 1
-                    current_point_x = points[index][0]
-
-                if(index != 0):
-                    index = index - 1
-                #print(x)
-                #print(len(points))
-                #print(len(control_points))
-                #print(f"index {index}")
-
-                c_points = [points[index], points[index+1], points[index+2]]
-                #print(c_points)
-                y_x = 0
-                for i in range(3):
-                    p1 = c_points[i-3]
-                    p2 = c_points[i-2]
-                    p3 = c_points[i-1]
-                    y_x = y_x + p1[1] * li_i_2(x, p1[0], p2[0], p3[0])
-
-                return y_x
-
+        def interpolated_func_data(points, control_points, use_lagrange=False):
             def lagrange2(x):
                 def li_i_1(x, p1_x, p2_x):
                     return (x - p2_x) / (p1_x - p2_x)
@@ -178,46 +124,10 @@ class Assignment1:
 
                 return y_x
 
-            return hermite
+            if(not use_lagrange):
+                return hermite
+            return lagrange2
         
-        
-
-        def one_control_point():
-            jmp = (b - a) / (n-2)
-            points = [[a, f(a)]] + [[a + jmp*i, f(a + jmp*i)] for i in range(1, n-1)]
-       
-            #print(points)
-            #print(len(points))
-            cp_x = find_bezier_cubic_control_point((a + a + jmp) / 2, points[0][0], points[1][0])
-            cp_y = find_bezier_cubic_control_point(f((a + a + jmp) / 2), points[0][1], points[1][1])
-            control_points = [[cp_x, cp_y]]
- 
-            for i in range(1, n-2):
-                cp_x = 2 * points[i][0] - cp_x
-                cp_y = 2 * points[i][1] - cp_y
-                control_points.append([cp_x, cp_y])
-            #print(f"\n\ncontrol points {control_points} len {len(control_points)}\n\n")
-            return (points, control_points)
-
-        def half_control_point():
-            number_of_points = int((n/2)) - 1
-            jmp = (b - a) / number_of_points
-            points = [[a, f(a)]]
-            control_points = []
-            point_x = a + jmp
-            for i in range(1, number_of_points+1):
-                points.append([point_x, f(point_x)])
-                point_x = point_x + jmp
-
-            for i in range(0, number_of_points):
-                p1_x = points[i][0]
-                p1_y = points[i][1]
-                p2_x = points[i+1][0]
-                p2_y = points[i+1][1]
-                cp_x = find_bezier_cubic_control_point((p2_x + p1_x) / 2, p1_x, p2_x)
-                cp_y = find_bezier_cubic_control_point(f((p2_y + p1_y) / 2), p1_y, p2_y)
-                control_points.append([cp_x, cp_y])
-
         def half_derivative():
             number_of_points = int((n/2)) - 1
             jmp = (b - a) / number_of_points
@@ -237,11 +147,11 @@ class Assignment1:
             return (points, control_points)
  
         def all_points():
-            number_of_points = n
+            number_of_points = n - 1
             jmp = (b - a) / number_of_points
             points = []
             point_x = a
-            for i in range(0, number_of_points):
+            for i in range(0, number_of_points + 1):
                 points.append([point_x, f(point_x)])
                 point_x = point_x + jmp
 
@@ -249,8 +159,13 @@ class Assignment1:
             #print(f"control points {control_points} len {len(control_points)}")
             return (points, [])
 
-        points, control_points = half_derivative()
-        return interpolated_func_data(points, control_points)
+
+        if(n < 5):
+            points, control_points = all_points()
+            return interpolated_func_data(points, control_points, True)
+        else:
+            points, control_points = half_derivative()
+            return interpolated_func_data(points, control_points)
 
 ##########################################################################
 
@@ -263,7 +178,7 @@ import matplotlib.pyplot as plt
 
 class TestAssignment1(unittest.TestCase):
 
-    def test_with_poly(self):
+    """def test_with_poly(self):
         T = time.time()
 
         ass1 = Assignment1()
@@ -290,7 +205,7 @@ class TestAssignment1(unittest.TestCase):
 
         T = time.time() - T
         print(T)
-        print(mean_err)
+        print(mean_err)"""
 
     def test_1(self):
         self.tfunc("sqr", lambda x: x ** 2, -5, 5, 10)
@@ -304,28 +219,43 @@ class TestAssignment1(unittest.TestCase):
     def test_7(self):
         self.tfunc("t7", lambda x: tfunctions.f7(x), 1.01, 5, 200)
 
+    def test_12(self):
+        self.tfunc("t_2_points", lambda x: x ** 2, -5, 5, 2, True)
+
+    def test_13(self):
+        self.tfunc("t_3_points", lambda x: x ** 2, -5, 5, 3, True)
+
+    def test_14(self):
+        self.tfunc("t_4_points", lambda x: x ** 2, -5, 5, 4, True)
+
     def tfunc(self, function_name, f, s, to, number_of_dots, draw=False):
         assignment1 = Assignment1()
-
         interpolated = assignment1.interpolate(f, s, to, number_of_dots)
 
-        if(draw):
-            p_x = np.arange(s * 1.1, to * 1.1, 0.1)
-            p_y = [interpolated(x) for x in p_x]
-            plt.plot(p_x, p_y)
-            plt.show()
-
+        print(function_name)
         xs = (np.random.random(20)) * ((to - s)) - (to - s) / 2
+        ys = []
+        y2s = []
         r_err = 0
         for x in xs:
             if(x < s):
                 x = s + 1
 
             y2 = interpolated(x)
+            y2s.append(y2)
             y = f(x)
+            ys.append(y)
             #print(x)
             #print(f"{x} {y} {y2} {abs((y - y2) / y)}")
             r_err = r_err + abs((y - y2) / y)
+
+        if(draw):
+            #x2s = [number for number in np.linspace(s * 1.0, to * 1.0)]
+            #y2s = [f(number) for number in x2s]
+            plt.plot(xs, y2s, "bo")
+            plt.plot(xs, ys, "ro")
+            plt.show()
+
         print(r_err / 20)
 
     """def test_with_poly_restrict(self):
