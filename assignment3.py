@@ -287,6 +287,7 @@ class TestAssignment3(unittest.TestCase):
         points = np.arange(s, to, ((to-s)/n))
         #print(integrate.simps(f1(points), points))
         expect_aera = integrate.quad(lambda x: f1(x), s, to)
+        #print(f"{expect_aera} {r}")
         self.assertEqual(r.dtype, np.float32)
         self.assertGreaterEqual(maxerr, abs(r - expect_aera[0]), func_name)
     

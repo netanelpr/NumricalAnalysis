@@ -57,7 +57,7 @@ class Assignment4:
         An object extending AbstractShape. 
         """
 
-        def arrage_to_parts(ordered_sample_array):
+        def arrage_to_parts(sample_data):
             poly_list = []
             current_list = []
             direction = 1
@@ -88,10 +88,17 @@ class Assignment4:
         
         def sort_clockwise(sample_data):
             mean = np.mean(sample_data, axis=0)
-            angles = np.arctan2((sample_data-mean)[:, 1], (sample_data-mean)[:, 0])
+            angles = np.arctan2((sample_data - mean)[:, 1], (sample_data - mean)[:, 0])
             angles[angles < 0] = angles[angles < 0] + 2 * np.pi
-            sorting_indices = np.argsort(angles)
-            return sample_data[sorting_indices]
+            sorting_indices = np.flip(np.argsort(angles))
+            angles =angles[sorting_indices]
+            sample_data = sample_data[sorting_indices]
+            p_x = [point[0] for point in sample_data]
+            p_y = [point[1] for point in sample_data]
+            plt.scatter(p_x, p_y,c=[str(x) for x in np.arange(len(p_y)) / len(p_y)],cmap='gray')
+            plt.show()
+
+            return (sample_data, angles) 
 
         # replace these lines with your solution
         result = MyShape()
@@ -102,13 +109,13 @@ class Assignment4:
             sample_data[i][1] = sampl[1]
 
         sorted_clockwise = sort_clockwise(sample_data)
-        print(sorted_clockwise)
+        """print(sorted_clockwise)
         p_x = [point[0] for point in sorted_clockwise]
         p_y = [point[1] for point in sorted_clockwise]
         #plt.plot(p_x, p_y)
         #plt.show()
         plt.scatter(p_x, p_y,c=[str(x) for x in np.arange(len(p_y)) / len(p_y)],cmap='gray')
-        plt.show()
+        plt.show()"""
         return result
 
 
