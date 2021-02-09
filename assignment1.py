@@ -141,7 +141,44 @@ class Assignment1:
 
                 return y_x
 
-            return lagrange2
+            def hermite(x):
+                def li_i_1(x, p1_x, p2_x):
+                    return (x - p2_x) / (p1_x - p2_x)
+
+                def li_i_1_d(p1_x, p2_x):
+                    return 1 / (p1_x - p2_x)
+
+                def h_i(x, p1_x, p2_x):
+                    return (1 - (x - p1_x) * li_i_1_d(p1_x, p2_x)) * (li_i_1(x, p1_x, p2_x) ** 2)
+
+                def h2_i(x, p1_x, p2_x):
+                    return (x - p1_x) * (li_i_1(x, p1_x, p2_x) ** 2)
+
+                current_point_x = points[0][0]
+                #print(current_point_x)
+                index = 0
+                while(x > current_point_x and index < len(points)-1):
+                    #print(f"{x} {current_point_x}")
+                    index = index + 1
+                    current_point_x = points[index][0]
+
+                index = index - 1
+                #print(x)
+                #print(len(points))
+                #print(len(control_points))
+                #print(f"index {index}")
+                c_points = [points[index], points[index+1]]
+                slope = control_points[index]
+                #print(f"{c_points} {slope}")
+                y_x = 0
+                for i in range(2):
+                    p1 = c_points[i-2]
+                    p2 = c_points[i-1]
+                    y_x = y_x + p1[1] * h_i(x, p1[0], p2[0]) + slope * h2_i(x, p1[0], p2[0])
+
+                return y_x
+
+            return hermite
         
         
 
@@ -179,7 +216,21 @@ class Assignment1:
                 p2_y = points[i+1][1]
                 cp_x = find_bezier_cubic_control_point((p2_x + p1_x) / 2, p1_x, p2_x)
                 cp_y = find_bezier_cubic_control_point(f((p2_y + p1_y) / 2), p1_y, p2_y)
-                control_points.append([cp_x, cp_y]) 
+                control_points.append([cp_x, cp_y])
+
+        def half_derivative():
+            number_of_points = int((n/2)) - 1
+            jmp = (b - a) / number_of_points
+            points = []
+            control_points = []
+            point_x = a
+            derivative_jmp = 0.001
+            for i in range(0, number_of_points + 1):
+                y_point = f(point_x)
+                points.append([point_x, y_point])
+                slope = (f(point_x + derivative_jmp) - y_point) / derivative_jmp
+                control_points.append(slope)
+                point_x = point_x + jmp  
 
             #print(f"points {points} len {len(points)}")
             #print(f"control points {control_points} len {len(control_points)}")
@@ -198,7 +249,7 @@ class Assignment1:
             #print(f"control points {control_points} len {len(control_points)}")
             return (points, [])
 
-        points, control_points = all_points()
+        points, control_points = half_derivative()
         return interpolated_func_data(points, control_points)
 
 ##########################################################################
