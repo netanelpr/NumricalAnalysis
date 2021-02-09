@@ -283,7 +283,7 @@ class TestAssignment2(unittest.TestCase):
     def test_poly(self):
     
         f1, f2 = randomIntersectingPolynomials(10)
-        self.tfunc("poly", f1, f2, -10, 10, 0.001)
+        self.tfunc("poly", f1, f2, -10, 10, 0.001, -1, True)
     
     def test_sin(self):
 
@@ -408,7 +408,7 @@ class TestAssignment2(unittest.TestCase):
         X = ass2.intersections(f1, f2, s, to, maxerr)
         index = 1 
         for x in X:
-            #print(f"{index} {x}")
+            print(f"{index} {x}")
             index = index + 1
             self.assertGreaterEqual(maxerr, abs(f1(x) - f2(x)))
 

@@ -57,10 +57,58 @@ class Assignment4:
         An object extending AbstractShape. 
         """
 
+        def arrage_to_parts(ordered_sample_array):
+            poly_list = []
+            current_list = []
+            direction = 1
+            iterator = ordered_sample_array
+            prev_point = iterator()
+            current_list.append(prev_point)
+            current_list.append(iterator())
+            if(prev_point[0] > current_list[1][0]):
+                direction = -1
+
+            for point in iterator:
+                if(direction == 1):
+                    if(point[0] < prev_point[0]):
+                        poly_list.append(current_list)
+                        current_list = [point]
+                        direction = -1
+                    else:
+                        current_list.append(point)
+                else:
+                    if(point[0] > prev_point[0]):
+                        poly_list.append(current_list)
+                        current_list = [point]
+                        direction = 1
+                    else:
+                        current_list.append(point)
+                prev_point = point
+            return poly_list               
+        
+        def sort_clockwise(sample_data):
+            mean = np.mean(sample_data, axis=0)
+            angles = np.arctan2((sample_data-mean)[:, 1], (sample_data-mean)[:, 0])
+            angles[angles < 0] = angles[angles < 0] + 2 * np.pi
+            sorting_indices = np.argsort(angles)
+            return sample_data[sorting_indices]
+
         # replace these lines with your solution
         result = MyShape()
-        x, y = sample()
+        sample_data = np.zeros((1000,2))
+        for i in range(1000):
+            sampl = sample()
+            sample_data[i][0] = sampl[0]
+            sample_data[i][1] = sampl[1]
 
+        sorted_clockwise = sort_clockwise(sample_data)
+        print(sorted_clockwise)
+        p_x = [point[0] for point in sorted_clockwise]
+        p_y = [point[1] for point in sorted_clockwise]
+        #plt.plot(p_x, p_y)
+        #plt.show()
+        plt.scatter(p_x, p_y,c=[str(x) for x in np.arange(len(p_y)) / len(p_y)],cmap='gray')
+        plt.show()
         return result
 
 
@@ -70,7 +118,7 @@ class Assignment4:
 import unittest
 from sampleFunctions import *
 from tqdm import tqdm
-
+import matplotlib.pyplot as plt
 
 class TestAssignment4(unittest.TestCase):
 
@@ -119,4 +167,9 @@ class TestAssignment4(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    #unittest.main()
+    circ = noisy_circle(cx=1, cy=1, radius=1, noise=0.1)
+    ass4 = Assignment4()
+    shape = ass4.fit_shape(sample=circ, maxtime=30)
+    shape.area()
+

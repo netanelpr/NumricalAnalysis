@@ -225,16 +225,7 @@ class TestAssignment1(unittest.TestCase):
             f = np.poly1d(a)
 
             ff = ass1.interpolate(f, -10, 10, 300 + 1)
-            xs1 = []
-            if(-10 < 0):
-                for number in np.random.random(200):
-                    if (number < 0.5):
-                        xs1.append(-1)
-                    else:
-                        xs1.append(1)
-            else:
-                xs1 = 1
-            xs = (np.random.random(200))* xs1 * ((-10 - 10) / 2)
+            xs = np.random.random(200)
             err = 0
             for x in xs:
                 #print(x)
@@ -273,16 +264,7 @@ class TestAssignment1(unittest.TestCase):
             plt.plot(p_x, p_y)
             plt.show()
 
-        xs1 = []
-        if(s < 0):
-            for number in np.random.random(20):
-                if (number < 0.5):
-                    xs1.append(-1)
-                else:
-                    xs1.append(1)
-        else:
-            xs1 = 1
-        xs = (np.random.random(20))* xs1 * ((to - s) / 2)
+        xs = (np.random.random(20)) * ((to - s)) - (to - s) / 2
         r_err = 0
         for x in xs:
             if(x < s):
