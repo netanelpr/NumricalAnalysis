@@ -23,7 +23,7 @@ import numpy as np
 import time
 import random
 from functionUtils import AbstractShape
-
+import scipy.integrate as integrate
 
 class MyShape(AbstractShape):
     # change this class with anything you need to implement the shape
@@ -86,6 +86,40 @@ class Assignment4:
                 prev_point = point
             return poly_list               
         
+        def fitting_liner(sample_data, angles):
+            current_angle = 0.0
+            prev_angle = 0.0
+            current_x_list = []
+            current_x = 0
+            current_y_list = []
+            functions_list = []
+            index = angles.size-1
+            prev_x_point = sample_data[index][0]
+            while(index > -1):
+                while(index > -1 and current_angle - prev_angle < 0.7):
+                    #print(f"{sample_data[index]} {angles[index]}")
+                    current_x_list.append(sample_data[index][0])
+                    current_y_list.append(sample_data[index][1])
+                    index = index - 1
+                    current_angle = angles[index]
+                current_x_point = sample_data[index+1][0]
+                A =  np.vstack([np.array(current_x_list), np.ones(len(current_x_list))]).T
+                m, c = np.linalg.lstsq(A, np.array(current_x_list), rcond=None)[0]
+                multiplier = 1
+                if(current_angle < np.pi): 
+                    multiplier = -1
+                functions_list.append([prev_x_point, current_x_point, lambda x: m*x + c, multiplier])
+                prev_x_point = current_x_point
+                prev_angle = current_angle
+            return functions_list
+
+        def area(conturs):
+            area = 0
+            for c in conturs:
+                area = area + integrate.quad(c[2], c[0], c[1])[0] * c[3]
+            return area
+            
+
         def sort_clockwise(sample_data):
             mean = np.mean(sample_data, axis=0)
             angles = np.arctan2((sample_data - mean)[:, 1], (sample_data - mean)[:, 0])
@@ -108,7 +142,9 @@ class Assignment4:
             sample_data[i][0] = sampl[0]
             sample_data[i][1] = sampl[1]
 
-        sorted_clockwise = sort_clockwise(sample_data)
+        sorted_clockwise, angles = sort_clockwise(sample_data)
+        fitting = fitting_liner(sorted_clockwise, angles)
+        print(area(fitting))
         """print(sorted_clockwise)
         p_x = [point[0] for point in sorted_clockwise]
         p_y = [point[1] for point in sorted_clockwise]

@@ -303,7 +303,7 @@ class TestAssignment2(unittest.TestCase):
 
         f2 = lambda x: 0
 
-        self.tfunc("t1", tfunctions.f1, f2, -10, 10, 0.001, 0)
+        self.tfunc("t1", tfunctions.f1, f2, -1000, 1000, 0.001, 0)
 
     def test_2(self):
 
