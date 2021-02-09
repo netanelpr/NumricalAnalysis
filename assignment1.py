@@ -91,18 +91,19 @@ class Assignment1:
                 current_point_x = points[0][0]
                 #print(current_point_x)
                 index = 0
-                while(x > current_point_x and index < len(points)-1):
+                while(x > current_point_x and index < len(points)-2):
                     #print(f"{x} {current_point_x}")
                     index = index + 1
                     current_point_x = points[index][0]
 
-                index = index - 1
+                if(index != 0):
+                    index = index - 1
                 #print(x)
                 #print(len(points))
                 #print(len(control_points))
                 #print(f"index {index}")
 
-                c_points = [points[index], control_points[index], points[index+1]]
+                c_points = [points[index], points[index+1], points[index+2]]
                 #print(c_points)
                 y_x = 0
                 for i in range(3):
@@ -207,10 +208,11 @@ import unittest
 from functionUtils import *
 from tqdm import tqdm
 import tfunctions
+import matplotlib.pyplot as plt
 
 class TestAssignment1(unittest.TestCase):
 
-    """def test_with_poly(self):
+    def test_with_poly(self):
         T = time.time()
 
         ass1 = Assignment1()
@@ -246,7 +248,7 @@ class TestAssignment1(unittest.TestCase):
 
         T = time.time() - T
         print(T)
-        print(mean_err)"""
+        print(mean_err)
 
     def test_1(self):
         self.tfunc("sqr", lambda x: x ** 2, -5, 5, 10)
@@ -260,10 +262,16 @@ class TestAssignment1(unittest.TestCase):
     def test_7(self):
         self.tfunc("t7", lambda x: tfunctions.f7(x), 1.01, 5, 200)
 
-    def tfunc(self, function_name, f, s, to, number_of_dots):
+    def tfunc(self, function_name, f, s, to, number_of_dots, draw=False):
         assignment1 = Assignment1()
 
         interpolated = assignment1.interpolate(f, s, to, number_of_dots)
+
+        if(draw):
+            p_x = np.arange(s * 1.1, to * 1.1, 0.1)
+            p_y = [interpolated(x) for x in p_x]
+            plt.plot(p_x, p_y)
+            plt.show()
 
         xs1 = []
         if(s < 0):
@@ -277,10 +285,13 @@ class TestAssignment1(unittest.TestCase):
         xs = (np.random.random(20))* xs1 * ((to - s) / 2)
         r_err = 0
         for x in xs:
+            if(x < s):
+                x = s + 1
+
             y2 = interpolated(x)
             y = f(x)
             #print(x)
-            #print(f"{y} {y2}")
+            #print(f"{x} {y} {y2} {abs((y - y2) / y)}")
             r_err = r_err + abs((y - y2) / y)
         print(r_err / 20)
 
