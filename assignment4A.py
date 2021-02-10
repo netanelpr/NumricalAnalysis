@@ -130,6 +130,20 @@ class TestAssignment4(unittest.TestCase):
         mse = mse/1000
         print(mse)
 
+    def test_poly10(self):
+        f = np.poly1d(np.random.randn(10))
+        nf = NOISY(1)(f)
+        ass4 = Assignment4A()
+        T = time.time()
+        ff = ass4.fit(f=nf, a=0, b=1, d=10, maxtime=5)
+        T = time.time() - T
+        mse=0
+        for x in np.linspace(0,1,1000):
+            self.assertNotEqual(f(x), nf(x))
+            mse+= (f(x)-ff(x))**2
+        mse = mse/1000
+        print(mse)
+
         
         
 

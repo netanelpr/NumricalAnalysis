@@ -49,7 +49,7 @@ class Assignment2:
 
         """
 
-        iterator = IntersectionIterable2(f1, f2, a, b, maxerr)
+        iterator = IntersectionIterable(f1, f2, a, b, maxerr)
         intersetion_list = []
         for intersetion in iterator:
             intersetion_list.append(intersetion)
@@ -66,136 +66,6 @@ class IntersectionIterable:
         self.b = b
         self.maxerr = maxerr
 
-        self.init_learning_rate = 0.01
-        self.slope_step = 0.01
-        self.jmp_step = 0.01
-
-        self.current_point_x = a
-        self.current_point_y = self.f(a)
-        self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
-
-        self.found_last_point = False
-        self.cont = 1
-
-    def f(self, x: float) -> float:
-        return self.f1(x) - self.f2(x)
-
-    def get_gradient(self, x: float, y: float) -> float:
-        gradient = (self.f(x + self.slope_step) - y) / self.slope_step
-        if (np.isnan(gradient)): gradient = 0.01
-        return gradient
-
-    def set_point_for_next_iter(self, current_root_x: float) -> float:
-
-        """self.current_point_x = current_root_x + self.jmp_step
-        self.current_point_y = self.f(self.current_point_x)
-
-        self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)"""
-
-        self.current_point_x = current_root_x
-        self.current_point_y = self.f(self.current_point_x)
-        while (abs(self.current_point_y) < self.maxerr):
-            # print(f"current_p_x {self.current_point_x} current_p_y {self.current_point_y}")
-
-            if (self.current_point_x > self.b):
-                break
-            self.current_point_x = self.current_point_x + self.jmp_step
-            self.current_point_y = self.f(self.current_point_x)
-
-        self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
-        return current_root_x
-
-    def bisection(self, p1: float, p2: float) -> float:
-        while True:
-
-            # print(f"bisection p1 {p1} p2 {p2}")
-            middle_point = (p1 + p2) / 2
-            f_middle_point = self.f(middle_point)
-
-            if (abs(f_middle_point) < self.maxerr):
-                #   print(f"bisection return {middle_point},{f_middle_point}")
-                return middle_point
-
-            if (self.f(p1) * f_middle_point < 0):
-                p2 = middle_point
-            elif (self.f(p2) * f_middle_point < 0):
-                p1 = middle_point
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        self.cont = 1
-        learning_rate = self.init_learning_rate
-
-        if (self.found_last_point):
-            raise StopIteration
-        print(self.current_point_gradient)
-        if (self.current_point_gradient < 0):
-            self.cont = -1
-
-        while True:
-
-            while ((np.isneginf(self.current_point_y) or np.isinf(self.current_point_y))):
-                print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
-                self.current_point_x = self.current_point_x + self.jmp_step
-                self.current_point_y = self.f(self.current_point_x)
-            self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
-
-            next_point_x = self.current_point_x + self.cont * learning_rate * self.current_point_gradient
-            next_point_y = self.f(next_point_x)
-
-            print(f"next_p_x {next_point_x} next_p_y {next_point_y}")
-            if (next_point_x > self.b):
-                if (self.current_point_y * self.f(self.b) < 0):
-                    ret_point = self.bisection(self.current_point_x, self.b)
-                    self.found_last_point = True
-                    return ret_point
-                raise StopIteration
-
-            if (abs(self.current_point_y) < self.maxerr):
-                return self.set_point_for_next_iter(self.current_point_x)
-
-            print(
-                f"current_p_x {self.current_point_x} current_p_x {self.current_point_y} cont {self.cont} lr {learning_rate}")
-            print(f"next_p_x {next_point_x} next_p_y {next_point_y}")
-
-            if (self.current_point_y * next_point_y < 0):
-                return self.set_point_for_next_iter(self.bisection(self.current_point_x, next_point_x))
-
-            next_point_gradient = self.get_gradient(next_point_x, next_point_y)
-            # print(f"current_point_gradient {self.current_point_gradient} next_point_gradient {next_point_gradient}")
-
-            if (abs(self.current_point_gradient * next_point_gradient) < 0.001):
-                if (self.current_point_gradient < 0):
-                    self.cont = -1
-                else:
-                    self.cont = 1
-
-                self.current_point_x = self.current_point_x + self.jmp_step
-                self.current_point_y = self.f(self.current_point_x)
-                self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
-                continue
-
-            if (self.current_point_gradient * next_point_gradient < 0):
-                learning_rate = learning_rate / 2
-
-            self.current_point_x = next_point_x
-            self.current_point_y = next_point_y
-            self.current_point_gradient = self.get_gradient(self.current_point_x, self.current_point_y)
-
-class IntersectionIterable2:
-
-    def __init__(self, f1: callable, f2: callable, a: float, b: float, maxerr=0.001):
-        self.derivative_step = 0.01
-        self.f1 = f1
-        self.f2 = f2
-        self.a = a
-        self.b = b
-        self.maxerr = maxerr
-
-        self.init_learning_rate = 0.01
-        self.slope_step = 0.01
         self.jmp_step = 0.1
 
         self.current_point_x = a
@@ -205,19 +75,29 @@ class IntersectionIterable2:
         return self.f1(x) - self.f2(x)
 
     def bisection(self, p1: float, p2: float) -> float:
-
+        prev_middle_point = np.nan
         while True:
 
             middle_point = (p1 + p2) / 2
+
+            if(prev_middle_point == middle_point):
+                return np.nan
+            else:
+                prev_middle_point = middle_point
+
             f_middle_point = self.f(middle_point)
             if (abs(f_middle_point) < self.maxerr):
                 #   print(f"bisection return {middle_point},{f_middle_point}")
                 return middle_point
 
-            if ((self.f(p1) > 0 and f_middle_point < 0) or (self.f(p1) < 0 and f_middle_point > 0)):
+            if (self.f(p1) * f_middle_point < 0):
                 p2 = middle_point
-            elif (self.f(p2) > 0 and f_middle_point < 0) or (self.f(p2) < 0 and f_middle_point > 0):
+            elif (self.f(p2) * f_middle_point < 0):
                 p1 = middle_point
+            elif (f_middle_point == 0):
+                return middle_point
+            else:
+                return np.nan
 
     def inc_current_point_next_iter(self):
 
@@ -257,8 +137,10 @@ class IntersectionIterable2:
 
             if (next_p_y * self.current_point_y < 0):
                 intersecion = self.bisection(self.current_point_x, next_p_x)
-                self.inc_current_point_next_iter()
-                return intersecion
+
+                if(not np.isnan(intersecion)):
+                    self.inc_current_point_next_iter()
+                    return intersecion
 
             self.current_point_x = next_p_x
 
@@ -376,7 +258,7 @@ class TestAssignment2(unittest.TestCase):
 
         f2 = lambda x: 0
 
-        # self.tfunc("t11", tfunctions.f11, f2, -1, -0.001, 0.001, 2)
+        self.tfunc("t11", tfunctions.f11, f2, -1, -0.01, 0.001, 1)
         self.tfunc("t11", tfunctions.f11, f2, 0.01, 1, 0.001, 2)
 
     def test_sqrt(self):
@@ -428,3 +310,4 @@ class TestAssignment2(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

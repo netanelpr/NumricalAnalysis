@@ -58,7 +58,7 @@ class Assignment3:
             The definite integral of f between a and b
         """
 
-        def compositce_simpson(a: np.float32, b: np.float32) -> np.float32:
+        def composite_simpson(a: np.float32, b: np.float32) -> np.float32:
             h = (b - a) / np.float32(n)
             sum1_array = [f(a)]
             sum2_array = []
@@ -66,9 +66,6 @@ class Assignment3:
 
             x = a + h
             for i in range(1, n):
-                #x = a + i * h
-                #print(f"{x} {f(np.float32(x))}")
-                #print(f(x))
                 point = np.float32(f(x))
 
                 if(i % 2 == 0):
@@ -82,9 +79,6 @@ class Assignment3:
             sum1_array.sort()
             sum2_array.sort()
             sum3_array.sort()
-            #print(sum1_array)
-            #print(sum2_array)
-            #print(sum3_array)
             sum1 = np.sum(sum1_array, dtype=np.float32)
             sum2 = np.float32(4.0) * np.sum(sum2_array, dtype=np.float32)
             sum3 =  np.sum(sum3_array, dtype=np.float32)
@@ -98,17 +92,12 @@ class Assignment3:
 
             x = a + h
             for i in range(1, n):
-                #x = a + i * h
-                #print(f"{x} {f(np.float32(x))}")
-                #print(f(x))
                 point = np.float32(f(x))
                 sum2_array.append(point)
                 x = x + h
 
             sum1_array.sort()
             sum2_array.sort()
-            #print(sum1_array)
-            #print(sum2_array)
             sum1 = np.sum(sum1_array, dtype=np.float32)
             sum2 = np.float32(2.0) * np.sum(sum2_array, dtype=np.float32)
 
@@ -120,20 +109,19 @@ class Assignment3:
 
             x = a + h
             for i in range(0, n):
-                #x = a + i * h
-                print(f"{x} {f(np.float32(x))}")
-                #print(f(x))
                 point = np.float32(f(x))
                 sum_array.append(point)
                 x = x + h + h
 
             sum_array.sort()
-            #print(sum_array)
             sum1 = np.sum(sum_array, dtype=np.float32)
 
             return np.float32(2.0) * h * sum1
 
-        return compositce_simpson(np.float32(a), np.float32(b))
+        if(n % 2 == 1):
+            n = n - 1
+
+        return composite_simpson(np.float32(a), np.float32(b))
 
     def areabetween(self, f1: callable, f2: callable) -> np.float32:
         """

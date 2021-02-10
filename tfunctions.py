@@ -37,4 +37,4 @@ def f10(x):
 def f11(x):
     function = np.poly1d([2, 0, 0])
     function1 = lambda x: 1 / function(x)
-    return (np.float32(2) ** function1(x)) * np.sin(1 / x)
+    return (np.float64(2) ** function1(x)) * np.sin(1 / x)
