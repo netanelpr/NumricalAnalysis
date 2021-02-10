@@ -13,23 +13,17 @@ def TIMED(function):
     return wrapper
 
 
-def DELAYED(delay):
+def EXACT(delay):
     def decorate(function):
         def wrapper(*args, **kwargs):
             result = function(*args, **kwargs)
             time.sleep(delay)
             return result
+
         return wrapper
+
     return decorate
 
-def NOISY(noise):
-    def decorate(function):
-        def wrapper(*args, **kwargs):
-            result = function(*args, **kwargs)
-            result+=np.random.randn()*noise
-            return result
-        return wrapper
-    return decorate
 
 def FLOAT32(function):
     def wrapper(*args, **kwargs):
@@ -38,6 +32,7 @@ def FLOAT32(function):
         result = function(*args, **kwargs)
         result = np.float32(result)
         return result
+
     return wrapper
 
 
@@ -115,8 +110,7 @@ class AbstractShape:
 @RESTRICT_INVOCATIONS(1)
 @FLOAT32
 @TIMED
-@NOISY(0.1)
-@DELAYED(delay=3)
+@EXACT(delay=3)
 def plus(a, b):
     return a + b
 

@@ -19,7 +19,8 @@ This assignment is more complicated than Assignment1 and Assignment2 because:
 import numpy as np
 import time
 import random
-import assignment2
+
+from assignment2 import Assignment2
 
 class Assignment3:
     def __init__(self):
@@ -66,7 +67,7 @@ class Assignment3:
 
             x = a + h
             for i in range(1, n):
-                #x = a + i * h
+                #x = a + i * h 
                 #print(f"{x} {f(np.float32(x))}")
                 #print(f(x))
                 point = np.float32(f(x))
@@ -98,7 +99,7 @@ class Assignment3:
 
             x = a + h
             for i in range(1, n):
-                #x = a + i * h
+                #x = a + i * h 
                 #print(f"{x} {f(np.float32(x))}")
                 #print(f(x))
                 point = np.float32(f(x))
@@ -120,7 +121,7 @@ class Assignment3:
 
             x = a + h
             for i in range(0, n):
-                #x = a + i * h
+                #x = a + i * h 
                 print(f"{x} {f(np.float32(x))}")
                 #print(f(x))
                 point = np.float32(f(x))
@@ -135,7 +136,7 @@ class Assignment3:
 
         return compositce_simpson(np.float32(a), np.float32(b))
 
-    def areabetween(self, f1: callable, f2: callable) -> np.float32:
+    def areabetween(self, f1: callable, f2: callable): #-> np.float32:
         """
         Finds the area enclosed between two functions. This method finds 
         all intersection points between the two functions to work correctly. 
@@ -147,8 +148,6 @@ class Assignment3:
         In order to find the enclosed area the given functions must intersect 
         in at least two points. If the functions do not intersect or intersect 
         in less than two points this function returns NaN.  
-        This function may not work correctly if there is infinite number of 
-        intersection points. 
         
 
         Parameters
@@ -171,13 +170,13 @@ class Assignment3:
             return (y_to - y_p) / delta
 
         def is_more_intersections(slopes_array):
-            if (slopes_array[0] < 0):
+            if(slopes_array[0] < 0):
                 for i in range(1, len(slopes_array)):
-                    if (slopes_array[i - 1] < slopes_array[i]):
+                    if(slopes_array[i-1] < slopes_array[i]):
                         return True
             else:
                 for i in range(1, len(slopes_array)):
-                    if (slopes_array[i - 1] > slopes_array[i]):
+                    if(slopes_array[i-1] > slopes_array[i]):
                         return True
             return False
 
@@ -185,37 +184,37 @@ class Assignment3:
             slopes = [0, 0, 0]
             next_at = at - jmp
             intersections = calcIntersections(f1, f2, next_at, at, 0.001)
-            # print(intersections)
-            if (len(intersections) == 0):
+            #print(intersections)
+            if(len(intersections) == 0):
                 for i in range(0, len(slopes_delta)):
                     delta = slopes_delta[i]
                     slopes[i] = calcSlope(lambda x: f1(x) - f2(x), at, (delta * -1)) * -1
-                if (is_more_intersections(slopes)):
+                if(is_more_intersections(slopes)):
                     return find_intersections_left(f1, f2, calcIntersections, next_at, slopes_delta, jmp)
                 else:
                     return []
             else:
-                # print("next iter")
+                #print("next iter")
                 more_intersections = find_intersections_left(f1, f2, calcIntersections, next_at, slopes_delta, jmp)
-                # print(more_intersections)
+                #print(more_intersections)
                 return more_intersections + intersections
 
         def find_intersections_right(f1, f2, calcIntersections, at, slopes_delta, jmp):
             slopes = [0, 0, 0]
             next_at = at + jmp
             intersections = calcIntersections(f1, f2, at, next_at, 0.001)
-            if (len(intersections) == 0):
+            if(len(intersections) == 0):
                 for i in range(0, len(slopes_delta)):
                     delta = slopes_delta[i]
-                    slopes[i] = calcSlope(lambda x: f1(x) - f2(x), at, delta)
-                if (is_more_intersections(slopes)):
+                    slopes[i] = calcSlope(lambda x: f1(x) - f2(x), at, delta) 
+                if(is_more_intersections(slopes)):
                     return find_intersections_right(f1, f2, calcIntersections, next_at, slopes_delta, jmp)
                 else:
                     return []
             else:
-                # print("next iter")
+                #print("next iter")
                 more_intersections = find_intersections_right(f1, f2, calcIntersections, next_at, slopes_delta, jmp)
-                # print(more_intersections)
+                #print(more_intersections)
                 return more_intersections + intersections
 
         def get_intersections(s, calc_slopes):
@@ -224,20 +223,29 @@ class Assignment3:
             left_intersections = find_intersections_left(f1, f2, calc_slopes, s, slopes_delta, jmp)
             right_intersections = find_intersections_right(f1, f2, calc_slopes, s, slopes_delta, jmp)
             return left_intersections + right_intersections
-
+    
         def clac_aera():
-            calc_slopes = lambda a, b, c, d, e: assignment2.intersections(a, b, c, d, e)
+            calc_slopes = lambda a, b, c, d, e : assignment2.intersections(a, b, c, d, e)
             intersections = get_intersections(0, calc_slopes)
 
             area = np.float32(0)
-            for i in range(0, len(intersections) - 1):
-                new_area = abs(self.integrate(f, intersections[i], intersections[i + 1], 100))
-                print(f"{intersections[i]} {intersections[i + 1]} {new_area}")
+            for i in range(0, len(intersections)-1):
+                new_area = abs(self.integrate(f, intersections[i], intersections[i+1], 100))
+                print(f"{intersections[i]} {intersections[i+1]} {new_area}")
                 area = area + new_area
 
             return area
 
-        return clac_aera()
+        assignment2 = Assignment2()
+        area = []
+
+        #f1 = np.poly1d([-1, 0, 90])
+        #f1 = np.poly1d([3, 7, 1, 4, 0, -4])
+        f1 = np.poly1d([1, -2, 0, 1])
+        f2 = lambda x: x
+        print(clac_aera())
+
+        return 1
 
 
 ##########################################################################
@@ -247,24 +255,47 @@ import unittest
 from sampleFunctions import *
 from tqdm import tqdm
 
+import scipy.integrate as integrate
+import matplotlib.pyplot as plt
 
 class TestAssignment3(unittest.TestCase):
 
     def test_integrate_float32(self):
-        ass3 = Assignment3()
-        f1 = np.poly1d([-1, 0, 1])
-        r = ass3.integrate(f1, -1, 1, 10)
+        f1 = np.poly1d([1, 0, -1])
 
-        self.assertEquals(r.dtype, np.float32)
+        self.tfunc("poly", f1, -1, 1, 10, 0.001)
 
     def test_integrate_hard_case(self):
+
         ass3 = Assignment3()
         f1 = strong_oscilations()
         r = ass3.integrate(f1, 0.09, 10, 20)
+        print(r)
         true_result = -7.78662 * 10 ** 33
-        print(abs((r - true_result) / true_result))
-        self.assertGreaterEqual(0.001, abs((r - true_result) / true_result))
+        self.assertGreaterEqual(0.001, (r - true_result) / true_result)
 
+    def tfunc(self, func_name: str, f1: callable, s: float, to: float, n: int, maxerr: float, draw=False):
+
+        if(draw):
+            p_x = np.arange(s * 1.1, to * 1.1, 0.1)
+            p_y = f1(p_x) - f2(p_x)
+            plt.plot(p_x, p_y)
+            plt.show()
+       
+        ass3 = Assignment3()
+        r = ass3.integrate(f1, s, to, n)
+        points = np.arange(s, to, ((to-s)/n))
+        #print(integrate.simps(f1(points), points))
+        expect_aera = integrate.quad(lambda x: f1(x), s, to)
+        #print(f"{expect_aera} {r}")
+        self.assertEqual(r.dtype, np.float32)
+        self.assertGreaterEqual(maxerr, abs(r - expect_aera[0]), func_name)
+    
 
 if __name__ == "__main__":
     unittest.main()
+    """a3 = Assignment3()
+    f1 = np.poly1d([1, -2, 0, 1])
+    f2 = lambda x: x
+    a3.areabetween(f1, f2)"""
+

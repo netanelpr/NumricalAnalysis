@@ -55,8 +55,8 @@ class Assignment1:
             return (number - (p0 * 0.25 + p2 * 0.25)) * 2
 
         def cubic_bezier(p0, p1, p2, t):
-            # bezier_function = lambda p0, p1, p2, t: p0 * (1 - t) ** 2 + 2 * p1 * t * (1 - t) + p2 * t ** 2
-            # return [bezier_function(p0[0], p1[0], p2[0], t), bezier_function(p0[1], p1[1], p2[1], t)]
+            #bezier_function = lambda p0, p1, p2, t: p0 * (1 - t) ** 2 + 2 * p1 * t * (1 - t) + p2 * t ** 2
+            #return [bezier_function(p0[0], p1[0], p2[0], t), bezier_function(p0[1], p1[1], p2[1], t)]
             return p0 * (1 - t) ** 2 + 2 * p1 * t * (1 - t) + p2 * t ** 2
 
         def interpolated_func_data(points, control_points, use_lagrange=False):
@@ -65,24 +65,24 @@ class Assignment1:
                     return (x - p2_x) / (p1_x - p2_x)
 
                 current_point_x = points[0][0]
-                # print(current_point_x)
+                #print(current_point_x)
                 index = 0
-                while (x > current_point_x and index < len(points) - 1):
-                    # print(f"{x} {current_point_x}")
+                while(x > current_point_x and index < len(points)-1):
+                    #print(f"{x} {current_point_x}")
                     index = index + 1
                     current_point_x = points[index][0]
 
                 index = index - 1
-                # print(x)
-                # print(len(points))
-                # print(len(control_points))
-                # print(f"index {index}")
-                c_points = [points[index], points[index + 1]]
-                # print(c_points)
+                #print(x)
+                #print(len(points))
+                #print(len(control_points))
+                #print(f"index {index}")
+                c_points = [points[index], points[index+1]]
+                #print(c_points)
                 y_x = 0
                 for i in range(2):
-                    p1 = c_points[i - 2]
-                    p2 = c_points[i - 1]
+                    p1 = c_points[i-2]
+                    p2 = c_points[i-1]
                     y_x = y_x + p1[1] * li_i_1(x, p1[0], p2[0])
 
                 return y_x
@@ -101,35 +101,35 @@ class Assignment1:
                     return (x - p1_x) * (li_i_1(x, p1_x, p2_x) ** 2)
 
                 current_point_x = points[0][0]
-                # print(current_point_x)
+                #print(current_point_x)
                 index = 0
-                while (x > current_point_x and index < len(points) - 1):
-                    # print(f"{x} {current_point_x}")
+                while(x > current_point_x and index < len(points)-1):
+                    #print(f"{x} {current_point_x}")
                     index = index + 1
                     current_point_x = points[index][0]
 
                 index = index - 1
-                # print(x)
-                # print(len(points))
-                # print(len(control_points))
-                # print(f"index {index}")
-                c_points = [points[index], points[index + 1]]
+                #print(x)
+                #print(len(points))
+                #print(len(control_points))
+                #print(f"index {index}")
+                c_points = [points[index], points[index+1]]
                 slope = control_points[index]
-                # print(f"{c_points} {slope}")
+                #print(f"{c_points} {slope}")
                 y_x = 0
                 for i in range(2):
-                    p1 = c_points[i - 2]
-                    p2 = c_points[i - 1]
+                    p1 = c_points[i-2]
+                    p2 = c_points[i-1]
                     y_x = y_x + p1[1] * h_i(x, p1[0], p2[0]) + slope * h2_i(x, p1[0], p2[0])
 
                 return y_x
 
-            if (not use_lagrange):
+            if(not use_lagrange):
                 return hermite
             return lagrange2
-
+        
         def half_derivative():
-            number_of_points = int((n / 2)) - 1
+            number_of_points = int((n/2)) - 1
             jmp = (b - a) / number_of_points
             points = []
             control_points = []
@@ -140,12 +140,12 @@ class Assignment1:
                 points.append([point_x, y_point])
                 slope = (f(point_x + derivative_jmp) - y_point) / derivative_jmp
                 control_points.append(slope)
-                point_x = point_x + jmp
+                point_x = point_x + jmp  
 
-                # print(f"points {points} len {len(points)}")
-            # print(f"control points {control_points} len {len(control_points)}")
+            #print(f"points {points} len {len(points)}")
+            #print(f"control points {control_points} len {len(control_points)}")
             return (points, control_points)
-
+ 
         def all_points():
             number_of_points = n - 1
             jmp = (b - a) / number_of_points
@@ -155,17 +155,17 @@ class Assignment1:
                 points.append([point_x, f(point_x)])
                 point_x = point_x + jmp
 
-            # print(f"points {points} len {len(points)}")
-            # print(f"control points {control_points} len {len(control_points)}")
+            #print(f"points {points} len {len(points)}")
+            #print(f"control points {control_points} len {len(control_points)}")
             return (points, [])
 
-        if (n < 5):
+
+        if(n < 5):
             points, control_points = all_points()
             return interpolated_func_data(points, control_points, True)
         else:
             points, control_points = half_derivative()
             return interpolated_func_data(points, control_points)
-
 
 ##########################################################################
 
@@ -178,26 +178,26 @@ import matplotlib.pyplot as plt
 
 class TestAssignment1(unittest.TestCase):
 
-    def test_with_poly(self):
+    """def test_with_poly(self):
         T = time.time()
 
         ass1 = Assignment1()
         mean_err = 0
 
-        d = 30
+        d = 300
         for i in tqdm(range(100)):
             a = np.random.randn(d)
 
             f = np.poly1d(a)
 
-            ff = ass1.interpolate(f, -10, 10, 100)
-
+            ff = ass1.interpolate(f, -10, 10, 300 + 1)
             xs = np.random.random(200)
             err = 0
             for x in xs:
+                #print(x)
                 yy = ff(x)
                 y = f(x)
-                err += abs(y - yy)
+                err += abs((y - yy) / y)
 
             err = err / 200
             mean_err += err
@@ -205,16 +205,7 @@ class TestAssignment1(unittest.TestCase):
 
         T = time.time() - T
         print(T)
-        print(mean_err)
-
-    def test_with_poly_restrict(self):
-        ass1 = Assignment1()
-        a = np.random.randn(5)
-        f = RESTRICT_INVOCATIONS(10)(np.poly1d(a))
-        ff = ass1.interpolate(f, -10, 10, 10)
-        xs = np.random.random(20)
-        for x in xs:
-            yy = ff(x)
+        print(mean_err)"""
 
     def test_1(self):
         self.tfunc("sqr", lambda x: x ** 2, -5, 5, 10)
@@ -229,13 +220,13 @@ class TestAssignment1(unittest.TestCase):
         self.tfunc("t7", lambda x: tfunctions.f7(x), 1.01, 5, 200)
 
     def test_12(self):
-        self.tfunc("t_2_points", lambda x: x ** 2, -5, 5, 2)
+        self.tfunc("t_2_points", lambda x: x ** 2, -5, 5, 2, True)
 
     def test_13(self):
-        self.tfunc("t_3_points", lambda x: x ** 2, -5, 5, 3)
+        self.tfunc("t_3_points", lambda x: x ** 2, -5, 5, 3, True)
 
     def test_14(self):
-        self.tfunc("t_4_points", lambda x: x ** 2, -5, 5, 4)
+        self.tfunc("t_4_points", lambda x: x ** 2, -5, 5, 4, True)
 
     def tfunc(self, function_name, f, s, to, number_of_dots, draw=False):
         assignment1 = Assignment1()
@@ -267,5 +258,17 @@ class TestAssignment1(unittest.TestCase):
 
         print(r_err / 20)
 
+    """def test_with_poly_restrict(self):
+        ass1 = Assignment1()
+        a = np.random.randn(5)
+        f = RESTRICT_INVOCATIONS(10)(np.poly1d(a))
+        ff = ass1.interpolate(f, -10, 10, 10)
+        xs = np.random.random(20)
+        for x in xs:
+            yy = ff(x)"""
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
