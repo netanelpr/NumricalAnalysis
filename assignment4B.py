@@ -23,7 +23,10 @@ import numpy as np
 import time
 import random
 from functionUtils import AbstractShape
+import assignment3
 
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 class MyShape(AbstractShape):
     # change this class with anything you need to implement the shape
@@ -40,7 +43,7 @@ class Assignment4:
 
         pass
 
-    def area(contour: callable, maxerr=0.001)->np.float32:
+    def area(self, contour: callable, maxerr=0.001)->np.float32:
         """
         Compute the area of the shape with the given contour. 
 
@@ -56,6 +59,63 @@ class Assignment4:
         The area of the shape.
 
         """
+
+        def get_order_sample_and_directions(sample_data, sample_size):
+            direction = 1
+            prev_point_x = sample_data[1][0]
+            if (sample_data[0][0] > prev_point_x):
+                direction = -1
+
+            indices = []
+            direction_list = []
+            for i in range(2, sample_size):
+                current_point_x = sample_data[i][0]
+                if (direction == 1):
+                    if (current_point_x < prev_point_x):
+                        indices.append(i)
+                        direction_list.append(direction)
+                        direction = direction * -1
+                elif (current_point_x > prev_point_x):
+                    indices.append(i)
+                    direction_list.append(direction)
+                    direction = direction * -1
+                prev_point_x = current_point_x
+            direction_list.append(direction)
+            sample_data = np.split(sample_data, indices)
+            return (sample_data, direction_list)
+
+
+
+        intergral = assignment3.Assignment3()
+        sample_size = 10000
+        sample_data = contour(sample_size)
+        sample_data, direction_list = get_order_sample_and_directions(sample_data, sample_size)
+
+        area = 0
+        for i in range(len(direction_list)):
+            data_array = np.sort(sample_data[i], axis=0)
+            data_array_x = np.array(data_array[:,0])
+            data_array_y = np.array(data_array[:,1])
+            function = np.poly1d(np.polyfit(data_array_x, data_array_y, 2))
+            area = area + direction_list[i] * -1 * intergral.integrate(function, data_array_x[0], data_array_x[-1], 100)
+
+            """size_to_split = int(data_array_x.size / 10)
+            index = 0
+
+            while(index < data_array_x.size):
+                size = 10
+                if(data_array_x.size - index < 10):
+                    size = data_array_x.size - index
+
+                points_x = data_array_y[index: index+size]
+                points_y = data_array_y[index: index + size]
+                A = np.vstack([points_x, np.ones(size)]).T
+                m, c = np.linalg.lstsq(A, points_y, rcond=None)[0]
+                function = lambda x: m * x + c
+                index = index + 10
+                area = area + direction_list[i] * -1 * intergral.integrate(function, points_x[0], points_x[-1], 10)"""
+
+        print(area)
         return np.float32(1.0)
     
     def fit_shape(self, sample: callable, maxtime: float) -> AbstractShape:
@@ -88,6 +148,25 @@ class Assignment4:
 import unittest
 from sampleFunctions import *
 from tqdm import tqdm
+
+
+def squareContour(n):
+    size = int(n/2)
+    x1 = np.linspace(2, 4 , num=size)
+    y1 = np.ones(size) * 4
+    c1 = np.stack((x1, y1), axis=1)
+
+    y2 = np.linspace(2, 4 , num=size)
+    x2 = np.ones(size) * 4
+    c2 = np.stack((x2, np.flip(y2)), axis=1)
+
+    y3 = np.ones(size) * 2
+    c3 = np.stack((np.flip(x1), y3), axis=1)
+
+    x4 = np.ones(size) * 2
+    c4 = np.stack((x4, y2), axis=1)
+
+    return np.concatenate((c1, c2, c3, c4))
 
 
 class TestAssignment4(unittest.TestCase):
@@ -138,3 +217,6 @@ class TestAssignment4(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+    #ass4 = Assignment4()
+    #ass4.area(squareContour)
+

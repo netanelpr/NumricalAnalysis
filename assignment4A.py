@@ -66,7 +66,7 @@ class Assignment4A:
             return (sample_array_x, sample_array_y)
 
         def polynomial_coefficients():
-            sample_array_x, sample_array_y = get_samples((100))
+            sample_array_x, sample_array_y = get_samples((10000))
 
             list_array = []
             for i in range(d+1):
@@ -121,7 +121,7 @@ class TestAssignment4(unittest.TestCase):
         nf = NOISY(1)(f)
         ass4 = Assignment4A()
         T = time.time()
-        ff = ass4.fit(f=nf, a=0, b=1, d=3, maxtime=5)
+        ff = ass4.fit(f=nf, a=0, b=1, d=2, maxtime=5)
         T = time.time() - T
         mse=0
         for x in np.linspace(0,1,1000):            
