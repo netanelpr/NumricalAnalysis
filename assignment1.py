@@ -159,12 +159,181 @@ class Assignment1:
             # print(f"control points {control_points} len {len(control_points)}")
             return (points, [])
 
-        if (n < 5):
-            points, control_points = all_points()
-            return interpolated_func_data(points, control_points, True)
-        else:
-            points, control_points = half_derivative()
-            return interpolated_func_data(points, control_points)
+        def get_points():
+            jmp = (b - a) / (n - 1)
+            points = np.empty([n, 2])
+            point_x = a
+            for i in range(0, n):
+                points[i, 0] = point_x
+                points[i, 1] = f(point_x)
+                point_x = point_x + jmp
+            return points
+
+        def create_coefficents_matrix():
+            coff = 4 * np.identity(n - 1)
+            coff[0, 0] = 2
+            np.fill_diagonal(coff[1:], 1)
+            np.fill_diagonal(coff[:, 1:], 1)
+            coff[n - 2, n - 3] = 2
+            coff[n - 2, n - 2] = 7
+
+            return coff
+
+        def build_sol_vector(points):
+            size = n - 1
+            vector_x = np.empty(size)
+            vector_y = np.empty(size)
+
+            vector_x[0] = points[0, 0] + 2 * points[1, 0]
+            vector_y[0] = points[0, 1] + 2 * points[1, 1]
+
+            vector_x[size - 1] = 8 * points[size - 1, 0] + points[size, 0]
+            vector_y[size - 1] = 8 * points[size - 1, 1] + points[size, 1]
+
+            for i in range(1, size - 1):
+                vector_x[i] = 4 * points[i, 0] + 2 * points[i + 1, 0]
+                vector_y[i] = 4 * points[i, 1] + 2 * points[i + 1, 1]
+
+            return (vector_x, vector_y)
+
+        def solve_matrix(coff_matrix, points):
+            b_array = np.copy(np.diag(coff_matrix))
+            size = len(b_array) - 1
+            a_array = np.copy(np.diag(coff_matrix, k=-1))
+            c_array = np.copy(np.diag(coff_matrix, k=1))
+            d_array = np.copy(points)
+            w = np.float64(0.0)
+
+            for i in range(1, size + 1):
+                w = a_array[i - 1] / b_array[i - 1]
+                b_array[i] = b_array[i] - w * c_array[i - 1]
+                d_array[i] = d_array[i] - w * d_array[i - 1]
+
+            x_array = np.empty(size + 1, dtype=np.float64)
+            x_array[size] = d_array[size] / b_array[size]
+            for i in range(size - 1, -1, -1):
+                x_array[i] = (d_array[i] - c_array[i] * x_array[i + 1]) / b_array[i]
+
+            return x_array
+
+        def get_control_points(points):
+            coefficents_matrix = create_coefficents_matrix()
+            vector_x, vector_y = build_sol_vector(points)
+            coff_from_x = solve_matrix(coefficents_matrix, vector_x)
+            coff_from_y = solve_matrix(coefficents_matrix, vector_y)
+
+            A = np.stack((coff_from_x, coff_from_y), axis=1)
+            B = np.empty([n - 1, 2])
+            for i in range(n - 2):
+                B[i] = 2 * points[i + 1] - A[i + 1]
+            B[n - 2] = (A[n - 2] + points[n - 1]) / 2
+
+            return A, B
+
+        def beizer_3_curve(p0, p1, p2, p3, t):
+            return p0 * np.power(1 - t, 3) + 3 * p1 * np.power(1 - t, 2) * t + 3 * p2 * (1 - t) * np.power(t,
+                                                                                                           2) + p3 * np.power(
+                t, 3)
+
+        def bezier(points, A, B):
+            def inner(x):
+                t = (x - a) / (b - a)
+                index = int(t * (n - 1))
+                t = (x - points[index, 0]) / (points[index + 1, 0] - points[index, 0])
+                return beizer_3_curve(points[index, 1], A[index][1], B[index][1], points[index + 1, 1], t)
+
+            return inner
+
+        points = get_points()
+        A, B = get_control_points(points)
+        return bezier(points, A, B)
+
+def interpolate(f: callable, a: float, b: float, n: int) -> callable:
+    def get_points():
+        jmp = (b - a) / (n-1)
+        points = np.empty([n, 2])
+        point_x = a
+        for i in range(0,  n):
+            points[i, 0] = point_x
+            points[i, 1] = f(point_x)
+            point_x = point_x + jmp
+        return points
+
+    def create_coefficents_matrix():
+        coff = 4 * np.identity(n-1)
+        coff[0, 0] = 2
+        np.fill_diagonal(coff[1:], 1)
+        np.fill_diagonal(coff[:, 1:], 1)
+        coff[n - 2, n - 3] = 2
+        coff[n - 2, n - 2] = 7
+
+        return coff
+
+    def build_sol_vector(points):
+        size = n - 1
+        vector_x = np.empty(size)
+        vector_y = np.empty(size)
+
+        vector_x[0] = points[0, 0] + 2 * points[1, 0]
+        vector_y[0] = points[0, 1] + 2 * points[1, 1]
+
+        vector_x[size-1] = 8 * points[size-1, 0] + points[size, 0]
+        vector_y[size-1] = 8 * points[size-1, 1] + points[size, 1]
+
+        for i in range(1, size-1):
+            vector_x[i] = 4 * points[i, 0] + 2 * points[i+1, 0]
+            vector_y[i] = 4 * points[i, 1] + 2 * points[i+1, 1]
+
+        return (vector_x, vector_y)
+
+    def solve_matrix(coff_matrix, points):
+        b_array = np.copy(np.diag(coff_matrix))
+        size = len(b_array) - 1
+        a_array = np.copy(np.diag(coff_matrix, k=-1))
+        c_array = np.copy(np.diag(coff_matrix, k=1))
+        d_array = np.copy(points)
+        w = np.float64(0.0)
+
+        for i in range(1, size+1):
+            w = a_array[i-1] / b_array[i - 1]
+            b_array[i] = b_array[i] - w * c_array[i - 1]
+            d_array[i] = d_array[i] - w * d_array[i - 1]
+
+        x_array = np.empty(size+1, dtype=np.float64)
+        x_array[size] = d_array[size] / b_array[size]
+        for i in range(size-1, -1, -1):
+            x_array[i] = (d_array[i] - c_array[i] * x_array[i + 1]) / b_array[i]
+
+        return x_array
+
+    def get_control_points(points):
+        coefficents_matrix = create_coefficents_matrix()
+        vector_x, vector_y = build_sol_vector(points)
+        coff_from_x = solve_matrix(coefficents_matrix, vector_x)
+        coff_from_y = solve_matrix(coefficents_matrix, vector_y)
+
+        A = np.stack((coff_from_x, coff_from_y), axis=1)
+        B = np.empty([n-1, 2])
+        for i in range(n - 2):
+            B[i] = 2 * points[i + 1] - A[i + 1]
+        B[n - 2] = (A[n - 2] + points[n-1]) / 2
+
+        return A, B
+
+    def beizer_3_curve(p0, p1, p2, p3, t):
+        return p0 * np.power(1 - t, 3) + 3 * p1 * np.power(1 - t, 2) * t + 3 * p2 * (1 - t) * np.power(t, 2) + p3 * np.power(t, 3)
+
+    def bezier(points, A, B):
+        def inner(x):
+            t = (x - a) / (b - a)
+            index = int(t * (n - 1))
+            t = (x - points[index, 0]) / (points[index + 1, 0] - points[index, 0])
+            return beizer_3_curve(points[index, 1], A[index][1], B[index][1], points[index + 1, 1], t)
+        return inner
+
+    points = get_points()
+    A, B = get_control_points(points)
+    return bezier(points, A, B)
 
 
 ##########################################################################
