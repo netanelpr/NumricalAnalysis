@@ -121,7 +121,7 @@ class TestAssignment4(unittest.TestCase):
         nf = NOISY(1)(f)
         ass4 = Assignment4A()
         T = time.time()
-        ff = ass4.fit(f=nf, a=0, b=1, d=2, maxtime=5)
+        ff = ass4.fit(f=nf, a=0, b=1, d=10, maxtime=5)
         T = time.time() - T
         mse=0
         for x in np.linspace(0,1,1000):            

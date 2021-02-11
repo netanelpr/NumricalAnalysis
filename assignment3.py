@@ -85,42 +85,6 @@ class Assignment3:
 
             return (h * (sum1 + sum3 + sum2) / np.float32(3.0))
 
-        def composite_trapezodial(a: np.float32, b: np.float32) -> np.float32:
-            h = (b - a) / np.float32(n)
-            sum1_array = [f(a), f(b)]
-            sum2_array = []
-
-            x = a + h
-            for i in range(1, n):
-                point = np.float32(f(x))
-                sum2_array.append(point)
-                x = x + h
-
-            sum1_array.sort()
-            sum2_array.sort()
-            sum1 = np.sum(sum1_array, dtype=np.float32)
-            sum2 = np.float32(2.0) * np.sum(sum2_array, dtype=np.float32)
-
-            return (h * (sum1 + sum2) / np.float32(2.0))
-
-        def composite_midpoint(a: np.float32, b: np.float32) -> np.float32:
-            h = (b - a) / np.float32(n+2)
-            sum_array = []
-
-            x = a + h
-            for i in range(0, n):
-                point = np.float32(f(x))
-                sum_array.append(point)
-                x = x + h + h
-
-            sum_array.sort()
-            sum1 = np.sum(sum_array, dtype=np.float32)
-
-            return np.float32(2.0) * h * sum1
-
-        if(n % 2 == 1):
-            n = n - 1
-
         return composite_simpson(np.float32(a), np.float32(b))
 
     def areabetween(self, f1: callable, f2: callable) -> np.float32:
@@ -228,7 +192,7 @@ class Assignment3:
 
             return area
 
-        return np.float32(clac_aera())
+        return clac_aera()
 
 
 ##########################################################################
@@ -259,7 +223,7 @@ class TestAssignment3(unittest.TestCase):
         print(abs((r - true_result) / true_result))
         self.assertGreaterEqual(0.001, abs((r - true_result) / true_result))"""
 
-    """def test_integrate_1(self):
+    def test_integrate_1(self):
         self.tfunc_integrate("f(x) = 5", tfunctions.f1, -10, 10, 10)
 
     def test_integrate_2(self):
@@ -274,7 +238,7 @@ class TestAssignment3(unittest.TestCase):
         self.tfunc_integrate("x^2", function, -100, 1000, 10)
 
     def test_integrate_5(self):
-        self.tfunc_integrate("ln(np.ln(x))", tfunctions.f9, 2, 100, 100)"""
+        self.tfunc_integrate("ln(np.ln(x))", tfunctions.f9, 2, 100, 100)
 
     def test_areabetween_1(self):
         function2 = lambda x: np.poly1d([1, 0, 0])(x - 10)

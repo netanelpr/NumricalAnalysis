@@ -60,63 +60,42 @@ class Assignment4:
 
         """
 
-        def get_order_sample_and_directions(sample_data, sample_size):
-            direction = 1
-            prev_point_x = sample_data[1][0]
-            if (sample_data[0][0] > prev_point_x):
-                direction = -1
+        def composite_trapezodial(a , b, points_array_y):
+            n = points_array_y.size
+            h = (b - a) / n
+            if(n == 2):
+                h = b - a
+            sum1_array = [points_array_y[0], points_array_y[-1]]
+            sum2_array = []
 
-            indices = []
-            direction_list = []
-            for i in range(2, sample_size):
-                current_point_x = sample_data[i][0]
-                if (direction == 1):
-                    if (current_point_x < prev_point_x):
-                        indices.append(i)
-                        direction_list.append(direction)
-                        direction = direction * -1
-                elif (current_point_x > prev_point_x):
-                    indices.append(i)
-                    direction_list.append(direction)
-                    direction = direction * -1
-                prev_point_x = current_point_x
-            direction_list.append(direction)
-            sample_data = np.split(sample_data, indices)
-            return (sample_data, direction_list)
+            for i in range(1, n-1):
+                sum2_array.append(points_array_y[i])
+
+            sum1_array.sort()
+            sum2_array.sort()
+            sum1 = np.sum(sum1_array)
+            sum2 = 2 * np.sum(sum2_array)
+
+            return (h * (sum1 + sum2) / 2.0)
 
 
-
-        intergral = assignment3.Assignment3()
-        sample_size = 10000
+        sample_size = 20000
         sample_data = contour(sample_size)
-        sample_data, direction_list = get_order_sample_and_directions(sample_data, sample_size)
-
         area = 0
-        for i in range(len(direction_list)):
-            data_array = np.sort(sample_data[i], axis=0)
-            data_array_x = np.array(data_array[:,0])
-            data_array_y = np.array(data_array[:,1])
-            function = np.poly1d(np.polyfit(data_array_x, data_array_y, 2))
-            area = area + direction_list[i] * -1 * intergral.integrate(function, data_array_x[0], data_array_x[-1], 100)
+        jmp = int(sample_size / 100)
+        for i in range(0, sample_size, jmp):
+            a = 0
+            if(i != 0):
+                a = sample_data[i-1, 0]
+            else:
+                a = sample_data[i, 0]
+            b = sample_data[i+jmp-1, 0]
+            if(a > b):
+                area = area + -1 * composite_trapezodial(b, a, np.flip(sample_data[i: i+jmp-1][:,1]))
+            else:
+                area = area + composite_trapezodial(a, b, sample_data[i: i + jmp - 1][:, 1])
 
-            """size_to_split = int(data_array_x.size / 10)
-            index = 0
-
-            while(index < data_array_x.size):
-                size = 10
-                if(data_array_x.size - index < 10):
-                    size = data_array_x.size - index
-
-                points_x = data_array_y[index: index+size]
-                points_y = data_array_y[index: index + size]
-                A = np.vstack([points_x, np.ones(size)]).T
-                m, c = np.linalg.lstsq(A, points_y, rcond=None)[0]
-                function = lambda x: m * x + c
-                index = index + 10
-                area = area + direction_list[i] * -1 * intergral.integrate(function, points_x[0], points_x[-1], 10)"""
-
-        print(area)
-        return np.float32(1.0)
+        return np.float32(abs(area))
     
     def fit_shape(self, sample: callable, maxtime: float) -> AbstractShape:
         """
@@ -151,7 +130,7 @@ from tqdm import tqdm
 
 
 def squareContour(n):
-    size = int(n/2)
+    size = int(n/4)
     x1 = np.linspace(2, 4 , num=size)
     y1 = np.ones(size) * 4
     c1 = np.stack((x1, y1), axis=1)
@@ -214,9 +193,16 @@ class TestAssignment4(unittest.TestCase):
         self.assertLess(abs(a - np.pi), 0.01)
         self.assertLessEqual(T, 32)
 
+    def test_circle_area_from_contour(self):
+        circ = Circle(cx=1, cy=1, radius=1, noise=0.0)
+        ass4 = Assignment4()
+        T = time.time()
+        a_computed = ass4.area(contour=circ.contour, maxerr=0.1)
+        T = time.time() - T
+        a_true = circ.area()
+        self.assertLess(abs((a_true - a_computed)/a_true), 0.1)
 
 if __name__ == "__main__":
     unittest.main()
-    #ass4 = Assignment4()
-    #ass4.area(squareContour)
+
 
