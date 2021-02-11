@@ -21,6 +21,8 @@ import numpy as np
 import time
 import random
 import torch
+import threading
+import time
 
 class Assignment4A:
     def __init__(self):
@@ -28,8 +30,7 @@ class Assignment4A:
         Here goes any one time calculation that need to be made before 
         solving the assignment for specific functions. 
         """
-
-        pass
+        self.current_time = 0
 
     def fit(self, f: callable, a: float, b: float, d:int, maxtime: float) -> callable:
         """
@@ -60,17 +61,30 @@ class Assignment4A:
             sample_jmps = (b - a) / sample_size
             current_point_x = a
             for i in range(sample_size+1):
-                sample_array_x[i] = current_point_x
-                sample_array_y[i] = f(current_point_x)
-                current_point_x = current_point_x + sample_jmps
+                if(self.current_time < maxtime):
+                    sample_array_x[i] = current_point_x
+
+                    t = time.time()
+                    sample_array_y[i] = f(current_point_x)
+                    self.current_time = self.current_time + (time.time() - t)
+
+                    current_point_x = current_point_x + sample_jmps
+                else:
+                    return (None, None)
             return (sample_array_x, sample_array_y)
 
         def polynomial_coefficients():
             sample_array_x, sample_array_y = get_samples((10000))
 
             list_array = []
-            for i in range(d+1):
-                list_array.append(torch.Tensor(sample_array_x ** i))
+            if(self.current_time < maxtime):
+                t = time.time()
+                for i in range(d+1):
+                    list_array.append(torch.Tensor(sample_array_x ** i))
+                self.current_time = self.current_time + (time.time() - t)
+
+            else:
+                return None
 
             ATranspose = torch.stack(list_array)
             A = ATranspose.T
@@ -85,8 +99,10 @@ class Assignment4A:
                     y = y + coefficients[i] * (x ** i)
                 return y
             return inner_function
+
         coefficients = polynomial_coefficients()
         return fitting_function(coefficients)
+
 
 
 ##########################################################################
@@ -107,14 +123,14 @@ class TestAssignment4(unittest.TestCase):
         T = time.time() - T
         self.assertLessEqual(T, 5)
 
-    """def test_delay(self):
+    def test_delay(self):
         f = DELAYED(7)(NOISY(0.01)(poly(1,1,1)))
 
         ass4 = Assignment4A()
         T = time.time()
         shape = ass4.fit(f=f, a=0, b=1, d=10, maxtime=5)
         T = time.time() - T
-        self.assertGreaterEqual(T, 5)"""
+        self.assertGreaterEqual(T, 5)
 
     def test_err(self):
         f = poly(1,1,1)
@@ -144,15 +160,5 @@ class TestAssignment4(unittest.TestCase):
         mse = mse/1000
         print(mse)
 
-        
-        
-
-
-
 if __name__ == "__main__":
     unittest.main()
-    """f = NOISY(0.01)(poly(1, 1, 1))
-    ass4 = Assignment4A()
-    shape = ass4.fit(f=f, a=0, b=1, d=10, maxtime=5)
-    for x in np.linspace(0, 1, 1000):
-        print(f(x))"""

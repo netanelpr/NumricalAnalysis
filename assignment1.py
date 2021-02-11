@@ -131,6 +131,10 @@ class Assignment1:
             def inner(x):
                 t = (x - a) / (b - a)
                 index = int(t * (n - 1))
+
+                if(index == int(points.size / points.ndim) - 1):
+                    index = index - 1
+
                 t = (x - points[index, 0]) / (points[index + 1, 0] - points[index, 0])
                 return beizer_3_curve(points[index, 1], A[index][1], B[index][1], points[index + 1, 1], t)
 
@@ -141,7 +145,6 @@ class Assignment1:
         return bezier(points, A, B)
 
 ##########################################################################
-
 
 import unittest
 from functionUtils import *
@@ -163,7 +166,7 @@ class TestAssignment1(unittest.TestCase):
 
             f = np.poly1d(a)
 
-            ff = ass1.interpolate(f, -10, 10, 100)
+            ff = ass1.interpolate(f, -10, 10, 50)
 
             xs = np.random.random(200)
             err = 0
@@ -215,7 +218,9 @@ class TestAssignment1(unittest.TestCase):
         interpolated = assignment1.interpolate(f, s, to, number_of_dots)
 
         print(function_name)
+
         xs = (np.random.random(20)) * ((to - s)) - (to - s) / 2
+        xs = np.concatenate((np.array([s, to]), xs))
         ys = []
         y2s = []
         r_err = 0
