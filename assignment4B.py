@@ -1,32 +1,8 @@
-"""
-In this assignment you should fit a model function of your choice to data 
-that you sample from a contour of given shape. Then you should calculate
-the area of that shape. 
-
-The sampled data is very noisy so you should minimize the mean least squares 
-between the model you fit and the data points you sample.  
-
-During the testing of this assignment running time will be constrained. You
-receive the maximal running time as an argument for the fitting method. You 
-must make sure that the fitting function returns at most 5 seconds after the 
-allowed running time elapses. If you know that your iterations may take more 
-than 1-2 seconds break out of any optimization loops you have ahead of time.
-
-Note: You are allowed to use any numeric optimization libraries and tools you want
-for solving this assignment. 
-Note: !!!Despite previous note, using reflection to check for the parameters 
-of the sampled function is considered cheating!!! You are only allowed to 
-get (x,y) points from the given shape by calling sample(). 
-"""
-
 import numpy as np
 import time
 import random
 from functionUtils import AbstractShape
-import assignment3
 
-import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
 
 class MyShape(AbstractShape):
     # change this class with anything you need to implement the shape
@@ -37,20 +13,20 @@ class MyShape(AbstractShape):
 class Assignment4:
     def __init__(self):
         """
-        Here goes any one time calculation that need to be made before 
-        solving the assignment for specific functions. 
+        Here goes any one time calculation that need to be made before
+        solving the assignment for specific functions.
         """
 
         pass
 
-    def area(self, contour: callable, maxerr=0.001)->np.float32:
+    def area(self, contour: callable, maxerr=0.001) -> np.float32:
         """
-        Compute the area of the shape with the given contour. 
+        Compute the area of the shape with the given contour.
 
         Parameters
         ----------
         contour : callable
-            Same as AbstractShape.contour 
+            Same as AbstractShape.contour
         maxerr : TYPE, optional
             The target error of the area computation. The default is 0.001.
 
@@ -59,7 +35,6 @@ class Assignment4:
         The area of the shape.
 
         """
-
         def composite_trapezodial(a , b, points_array_y):
             n = points_array_y.size
             h = (b - a) / n
@@ -96,22 +71,22 @@ class Assignment4:
                 area = area + composite_trapezodial(a, b, sample_data[i: i + jmp - 1][:, 1])
 
         return np.float32(abs(area))
-    
+
     def fit_shape(self, sample: callable, maxtime: float) -> AbstractShape:
         """
         Build a function that accurately fits the noisy data points sampled from
-        some closed shape. 
-        
+        some closed shape.
+
         Parameters
         ----------
-        sample : callable. 
+        sample : callable.
             An iterable which returns a data point that is near the shape contour.
         maxtime : float
-            This function returns after at most maxtime seconds. 
+            This function returns after at most maxtime seconds.
 
         Returns
         -------
-        An object extending AbstractShape. 
+        An object extending AbstractShape.
         """
 
         # replace these lines with your solution
@@ -127,25 +102,6 @@ class Assignment4:
 import unittest
 from sampleFunctions import *
 from tqdm import tqdm
-
-
-def squareContour(n):
-    size = int(n/4)
-    x1 = np.linspace(2, 4 , num=size)
-    y1 = np.ones(size) * 4
-    c1 = np.stack((x1, y1), axis=1)
-
-    y2 = np.linspace(2, 4 , num=size)
-    x2 = np.ones(size) * 4
-    c2 = np.stack((x2, np.flip(y2)), axis=1)
-
-    y3 = np.ones(size) * 2
-    c3 = np.stack((np.flip(x1), y3), axis=1)
-
-    x4 = np.ones(size) * 2
-    c4 = np.stack((x4, y2), axis=1)
-
-    return np.concatenate((c1, c2, c3, c4))
 
 
 class TestAssignment4(unittest.TestCase):
@@ -200,9 +156,11 @@ class TestAssignment4(unittest.TestCase):
         a_computed = ass4.area(contour=circ.contour, maxerr=0.1)
         T = time.time() - T
         a_true = circ.area()
-        self.assertLess(abs((a_true - a_computed)/a_true), 0.1)
+        self.assertLess(abs((a_true - a_computed) / a_true), 0.1)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
 

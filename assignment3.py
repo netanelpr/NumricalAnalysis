@@ -81,7 +81,7 @@ class Assignment3:
             sum2 = np.float32(4.0) * np.sum(sum2_array, dtype=np.float32)
             sum3 = np.sum(sum3_array, dtype=np.float32)
 
-            return (h / np.float32(3.0) * (sum1 + sum3 + sum2))
+            return (h  * (sum1 + sum3 + sum2) / np.float32(3.0))
 
         return composite_simpson(np.float32(a), np.float32(b))
 
