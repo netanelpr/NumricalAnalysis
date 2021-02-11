@@ -294,8 +294,4 @@ class TestAssignment3(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    """a3 = Assignment3()
-    f1 = np.poly1d([1, -2, 0, 1])
-    f2 = lambda x: x
-    a3.areabetween(f1, f2)"""
 
