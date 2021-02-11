@@ -98,10 +98,11 @@ class Assignment1:
                     index = index - 1
 
                 c_points = [points[index], points[index + 1]]
-                slope = control_points[index]
+                slopes = [control_points[index], control_points[index + 1]]
                 y_x = 0
                 for i in range(2):
                     p1 = c_points[i - 2]
+                    slope = slopes[i - 2]
                     p2 = c_points[i - 1]
                     y_x = y_x + p1[1] * h_i(x, p1[0], p2[0]) + slope * h2_i(x, p1[0], p2[0])
 
@@ -139,8 +140,9 @@ class Assignment1:
             return (points, None)
 
         if (n == 1):
-            return lambda x: a
-        elif(n < 5):
+            const_value = f((a + b) / 2)
+            return lambda number: const_value
+        elif(n < 4):
             points, control_points = all_points()
             return interpolated_func_data(points, control_points, True)
         else:
