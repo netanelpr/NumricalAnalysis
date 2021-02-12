@@ -86,7 +86,6 @@ class IntersectionIterable:
 
             f_middle_point = self.f(middle_point)
             if (abs(f_middle_point) < self.maxerr):
-                #   print(f"bisection return {middle_point},{f_middle_point}")
                 return middle_point
 
             if (self.f(p1) * f_middle_point < 0):
@@ -116,7 +115,6 @@ class IntersectionIterable:
 
     def __next__(self):
         while True:
-            # print(f"current_p_x {self.current_point_x} current_p_x {self.current_point_y}")
             if (self.current_point_x > self.b):
                 raise StopIteration
 

@@ -1,22 +1,22 @@
 """
-In this assignment you should fit a model function of your choice to data
+In this assignment you should fit a model function of your choice to data 
 that you sample from a contour of given shape. Then you should calculate
-the area of that shape.
+the area of that shape. 
 
-The sampled data is very noisy so you should minimize the mean least squares
-between the model you fit and the data points you sample.
+The sampled data is very noisy so you should minimize the mean least squares 
+between the model you fit and the data points you sample.  
 
 During the testing of this assignment running time will be constrained. You
-receive the maximal running time as an argument for the fitting method. You
-must make sure that the fitting function returns at most 5 seconds after the
-allowed running time elapses. If you know that your iterations may take more
+receive the maximal running time as an argument for the fitting method. You 
+must make sure that the fitting function returns at most 5 seconds after the 
+allowed running time elapses. If you know that your iterations may take more 
 than 1-2 seconds break out of any optimization loops you have ahead of time.
 
 Note: You are allowed to use any numeric optimization libraries and tools you want
-for solving this assignment.
-Note: !!!Despite previous note, using reflection to check for the parameters
-of the sampled function is considered cheating!!! You are only allowed to
-get (x,y) points from the given shape by calling sample().
+for solving this assignment. 
+Note: !!!Despite previous note, using reflection to check for the parameters 
+of the sampled function is considered cheating!!! You are only allowed to 
+get (x,y) points from the given shape by calling sample(). 
 """
 
 import numpy as np
@@ -34,20 +34,20 @@ class MyShape(AbstractShape):
 class Assignment4:
     def __init__(self):
         """
-        Here goes any one time calculation that need to be made before
-        solving the assignment for specific functions.
+        Here goes any one time calculation that need to be made before 
+        solving the assignment for specific functions. 
         """
 
         pass
 
-    def area(self, contour: callable, maxerr=0.001) -> np.float32:
+    def area(self, contour: callable, maxerr=0.001)->np.float32:
         """
-        Compute the area of the shape with the given contour.
+        Compute the area of the shape with the given contour. 
 
         Parameters
         ----------
         contour : callable
-            Same as AbstractShape.contour
+            Same as AbstractShape.contour 
         maxerr : TYPE, optional
             The target error of the area computation. The default is 0.001.
 
@@ -56,58 +56,23 @@ class Assignment4:
         The area of the shape.
 
         """
-
-        def composite_trapezodial(a, b, points_array_y):
-            n = points_array_y.size - 1
-            h = (b - a) / n
-            if (n == 2):
-                h = b - a
-            sum1_array = [points_array_y[0], points_array_y[-1]]
-            sum2_array = []
-
-            for i in range(1, n):
-                sum2_array.append(points_array_y[i])
-
-            sum1_array.sort()
-            sum2_array.sort()
-            sum1 = np.sum(sum1_array)
-            sum2 = 2 * np.sum(sum2_array)
-
-            return (h * (sum1 + sum2) / 2.0)
-
-        sample_size = 10000
-        sample_data = contour(sample_size)
-        area = 0
-        jmp = int(sample_size / 1000)
-        for i in range(0, sample_size, jmp):
-            a = 0
-            if (i != 0):
-                a = sample_data[i - 1, 0]
-            else:
-                a = sample_data[i, 0]
-            b = sample_data[i + jmp - 1, 0]
-            if (a > b):
-                area = area + -1 * composite_trapezodial(b, a, np.flip(sample_data[i: i + jmp - 1][:, 1]))
-            else:
-                area = area + composite_trapezodial(a, b, sample_data[i: i + jmp - 1][:, 1])
-
-        return np.float32(abs(area))
-
+        return np.float32(1.0)
+    
     def fit_shape(self, sample: callable, maxtime: float) -> AbstractShape:
         """
         Build a function that accurately fits the noisy data points sampled from
-        some closed shape.
-
+        some closed shape. 
+        
         Parameters
         ----------
-        sample : callable.
+        sample : callable. 
             An iterable which returns a data point that is near the shape contour.
         maxtime : float
-            This function returns after at most maxtime seconds.
+            This function returns after at most maxtime seconds. 
 
         Returns
         -------
-        An object extending AbstractShape.
+        An object extending AbstractShape. 
         """
 
         # replace these lines with your solution
@@ -177,9 +142,8 @@ class TestAssignment4(unittest.TestCase):
         a_computed = ass4.area(contour=circ.contour, maxerr=0.1)
         T = time.time() - T
         a_true = circ.area()
-        self.assertLess(abs((a_true - a_computed) / a_true), 0.1)
+        self.assertLess(abs((a_true - a_computed)/a_true), 0.1)
 
 
 if __name__ == "__main__":
     unittest.main()
-

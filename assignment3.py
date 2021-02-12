@@ -159,5 +159,6 @@ class TestAssignment3(unittest.TestCase):
         true_result = -7.78662 * 10 ** 33
         self.assertGreaterEqual(0.001, abs((r - true_result) / true_result))
 
+
 if __name__ == "__main__":
     unittest.main()

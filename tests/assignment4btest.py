@@ -76,6 +76,9 @@ class TestAssignment4(unittest.TestCase):
         a_true = circ.area()
         self.assertLess(abs((a_true - a_computed)/a_true), 0.1)
 
+    def test_1(self):
+        print(Assignment4().area(Circle(cx=1, cy=1, radius=1, noise=0.0).contour, 0.001))
+        print(Assignment4().area(squareContour, 0.001))
+
 if __name__ == "__main__":
     unittest.main()
-
